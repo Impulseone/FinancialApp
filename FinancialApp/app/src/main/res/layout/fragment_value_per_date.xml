@@ -8,11 +8,13 @@
     tools:context=".view.ValuePerDateFragment">
 
     <TextView
+        android:id="@+id/selected_date_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/selected_date" />
 
     <Button
+        android:id="@+id/select_date_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/select_date"/>
