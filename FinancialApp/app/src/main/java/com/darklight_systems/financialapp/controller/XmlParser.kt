@@ -1,29 +1,59 @@
 package com.darklight_systems.financialapp.controller
 
 import android.content.Context
+import android.widget.Toast
 import com.darklight_systems.financialapp.R
-
 import org.xmlpull.v1.XmlPullParser
 
-
 class XmlParser {
-    fun parse(context: Context) {
-        val parser: XmlPullParser = context.resources.getXml(R.xml.contacts)
-        val list: ArrayList<String> = ArrayList()
-        while (parser.eventType != XmlPullParser.END_DOCUMENT) {
-            if (parser.eventType == XmlPullParser.START_TAG
-                && parser.name.equals("contact")
-            ) {
-                list.add(
-                    parser.getAttributeValue(0) + " "
-                            + parser.getAttributeValue(1) + "\n"
-                            + parser.getAttributeValue(2)
-                )
+
+    fun parseV2(context: Context) {
+        val namesList: ArrayList<String> = ArrayList()
+        val valuesList: ArrayList<String> = ArrayList()
+        var isName = false
+        var isValue = false
+        try {
+            val parser: XmlPullParser = context.resources.getXml(R.xml.contacts)
+            while (parser.eventType != XmlPullParser.END_DOCUMENT) {
+                val TAG = "ЛогКот"
+                var tmp = ""
+                when (parser.eventType) {
+                    XmlPullParser.START_TAG -> {
+                        if (parser.name.equals("Name")) {
+                            isName = true
+                        }
+                        if (parser.name.equals("Value")) {
+                            isValue = true
+                        }
+                    }
+                    XmlPullParser.TEXT -> {
+                        if (isName) {
+                            namesList.add(parser.text)
+                            isName = false
+                        }
+                        if (isValue) {
+                            valuesList.add(parser.text)
+                            isValue = false
+                        }
+                    }
+                    else -> {
+                    }
+                }
+                parser.next()
             }
-            parser.next()
+        } catch (t: Throwable) {
+            t.printStackTrace()
+            Toast.makeText(
+                context,
+                "Ошибка при загрузке XML-документа: $t",
+                Toast.LENGTH_LONG
+            ).show()
         }
-        for (element in list) {
-            println(element)
+        for (name in namesList) {
+            println(name)
+        }
+        for (value in valuesList) {
+            println(value)
         }
     }
 }

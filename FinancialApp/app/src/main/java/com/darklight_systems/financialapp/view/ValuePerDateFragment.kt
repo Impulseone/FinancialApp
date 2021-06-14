@@ -40,7 +40,7 @@ class ValuePerDateFragment : Fragment() {
         val dpd = DatePickerDialog(requireActivity(), { _, year, monthOfYear, dayOfMonth ->
             val date = "${dayOfMonth}/${monthOfYear}/${year}"
             textView.text = date
-            XmlParser().parse(requireActivity().applicationContext)
+            XmlParser().parseV2(requireActivity().applicationContext)
         }, year, month, day)
 
         dpd.datePicker.maxDate = Date().time
