@@ -1,4 +1,4 @@
-package com.darklight_systems.financialapp
+package com.darklight_systems.financialapp.view
 
 import android.os.Bundle
 import android.util.Log
@@ -10,7 +10,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.skynet.fish_shop.view.extension.LeftNavigationArrayAdapter
+import com.darklight_systems.financialapp.R
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.tool_bar_with_menu_button.*
 
@@ -18,13 +18,16 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var leftMenuTitlesArray: Array<String>
     private lateinit var mDrawerToggle: ActionBarDrawerToggle
+    private lateinit var valuePerDateFragment: ValuePerDateFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         leftMenuTitlesArray = resources.getStringArray(R.array.left_menu_titles)
+        valuePerDateFragment = ValuePerDateFragment()
         createToolbar()
         createLeftNavigationMenu()
+        createValuePerDateFragment()
     }
 
     private fun createToolbar() {
@@ -42,6 +45,12 @@ class MainActivity : AppCompatActivity() {
             R.string.drawer_close
         )
         main_drawer_layout.setDrawerListener(mDrawerToggle)
+    }
+
+    private fun createValuePerDateFragment() {
+        val ft = supportFragmentManager.beginTransaction()
+        ft.replace(R.id.main_relative_layout, valuePerDateFragment)
+        ft.commit()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
