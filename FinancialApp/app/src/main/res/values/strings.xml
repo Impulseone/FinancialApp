@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">FinancialApp</string>
+    <string-array name="left_menu_titles">
+        <item>Курс на дату</item>
+        <item>История изменения курсов</item>
+        <item>Конвертер валют</item>
+    </string-array>
+    <string name="drawer_open">drawer open</string>
+    <string name="drawer_close">drawer close</string>
 </resources>
