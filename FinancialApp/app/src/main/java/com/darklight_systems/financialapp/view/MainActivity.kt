@@ -66,32 +66,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkoutToSelectedFragment(position: Int) {
-//        val fragment: Fragment =
-//            when (position) {
-//                0 -> MainFragment()
-//                1 -> FavoritesFragment()
-//                2 -> RequisitesFragment()
-//                else -> MainFragment()
-//            }
-//        changeFragment(fragment, position)
-        val pressed = when (position) {
-                0 -> "MainFragment()"
-                1 -> "FavoritesFragment()"
-                2 -> "RequisitesFragment()"
-                else -> "MainFragment()"
+        val fragment: Fragment =
+            when (position) {
+                0 -> ValuePerDateFragment()
+                1 -> ValuesHistoryFragment()
+                2 -> ConverterFragment()
+                else -> ValuePerDateFragment()
             }
-        println(pressed)
+        changeFragment(fragment, position)
         left_drawer.setItemChecked(position, true)
         main_drawer_layout.closeDrawer(left_menu_linear_layout)
     }
 
     private fun changeFragment(fragment: Fragment?, position: Int) {
         if (fragment != null) {
-//            val fragmentManager = supportFragmentManager
-//            fragmentManager.beginTransaction()
-//                .replace(R.id.main_relative_layout, fragment).commit()
-//            left_drawer.setItemChecked(position, true)
-//            main_drawer_layout.closeDrawer(left_menu_linear_layout)
+            val fragmentManager = supportFragmentManager
+            fragmentManager.beginTransaction()
+                .replace(R.id.main_relative_layout, fragment).commit()
+            left_drawer.setItemChecked(position, true)
+            main_drawer_layout.closeDrawer(left_menu_linear_layout)
         } else {
             Log.e(this.javaClass.name, "Error. Fragment is not created")
         }
