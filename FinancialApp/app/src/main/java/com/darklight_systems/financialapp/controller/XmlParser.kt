@@ -3,37 +3,54 @@ package com.darklight_systems.financialapp.controller
 import android.content.Context
 import android.widget.Toast
 import com.darklight_systems.financialapp.R
+import com.darklight_systems.financialapp.model.Currency
 import org.xmlpull.v1.XmlPullParser
 
 class XmlParser {
-
-    fun parseV2(context: Context) {
-        val namesList: ArrayList<String> = ArrayList()
-        val valuesList: ArrayList<String> = ArrayList()
+    fun parse(context: Context) {
+        val currencyList: ArrayList<Currency> = ArrayList()
         var isName = false
         var isValue = false
+        var isNominal = false
         try {
             val parser: XmlPullParser = context.resources.getXml(R.xml.contacts)
+            var currency = Currency(0.0, "", 0)
             while (parser.eventType != XmlPullParser.END_DOCUMENT) {
-                val TAG = "ЛогКот"
-                var tmp = ""
                 when (parser.eventType) {
                     XmlPullParser.START_TAG -> {
-                        if (parser.name.equals("Name")) {
-                            isName = true
-                        }
-                        if (parser.name.equals("Value")) {
-                            isValue = true
+                        when {
+                            parser.name.equals("Name") -> {
+                                isName = true
+                            }
+                            parser.name.equals("Value") -> {
+                                isValue = true
+                            }
+                            parser.name.equals("Nominal") -> {
+                                isNominal = true
+                            }
                         }
                     }
                     XmlPullParser.TEXT -> {
-                        if (isName) {
-                            namesList.add(parser.text)
-                            isName = false
+                        when {
+                            isName -> {
+                                isName = false
+                                currency.name = parser.text
+                            }
+                            isValue -> {
+                                isValue = false
+                                currency.value = parser.text.replace(",", ".").toDouble()
+                            }
+                            isNominal -> {
+                                isNominal = false
+                                currency.nominal = parser.text.toInt()
+                            }
                         }
-                        if (isValue) {
-                            valuesList.add(parser.text)
-                            isValue = false
+                    }
+                    XmlPullParser.END_TAG -> {
+                        println(parser.name)
+                        if (parser.name.equals("Valute")) {
+                            currencyList.add(currency)
+                            currency = Currency(0.0, "", 0)
                         }
                     }
                     else -> {
@@ -49,11 +66,8 @@ class XmlParser {
                 Toast.LENGTH_LONG
             ).show()
         }
-        for (name in namesList) {
-            println(name)
-        }
-        for (value in valuesList) {
-            println(value)
+        for (currency in currencyList) {
+            println(currency)
         }
     }
 }

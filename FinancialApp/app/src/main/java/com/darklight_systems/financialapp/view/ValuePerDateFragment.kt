@@ -1,7 +1,6 @@
 package com.darklight_systems.financialapp.view
 
 import android.app.DatePickerDialog
-import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -40,7 +39,7 @@ class ValuePerDateFragment : Fragment() {
         val dpd = DatePickerDialog(requireActivity(), { _, year, monthOfYear, dayOfMonth ->
             val date = "${dayOfMonth}/${monthOfYear}/${year}"
             textView.text = date
-            XmlParser().parseV2(requireActivity().applicationContext)
+            XmlParser().parse(requireActivity().applicationContext)
         }, year, month, day)
 
         dpd.datePicker.maxDate = Date().time
