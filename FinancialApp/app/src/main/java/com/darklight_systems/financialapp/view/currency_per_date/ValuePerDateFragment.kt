@@ -25,7 +25,7 @@ import kotlin.collections.ArrayList
 
 class ValuePerDateFragment : Fragment() {
 
-    private val URL = "https://www.cbr.ru/scripts/XML_daily.asp?date_req=14/06/2021"
+    private val URL = "https://www.cbr.ru/scripts/XML_daily.asp?date_req="
 
     private lateinit var selectDateButton: Button
     private lateinit var currencyAdapter: CurrencyAdapter
@@ -40,14 +40,14 @@ class ValuePerDateFragment : Fragment() {
         return view
     }
 
-    private fun setSelectDateButton(view: View?){
+    private fun setSelectDateButton(view: View?) {
         selectDateButton = view?.findViewById(R.id.select_date_button) as Button
         selectDateButton.setOnClickListener {
             openDatePicker(selected_date_tv)
         }
     }
 
-    private fun setAdapter(view:View?){
+    private fun setAdapter(view: View?) {
         val recyclerView =
             (view?.findViewById<RecyclerView>(R.id.currency_rv) as RecyclerView)
         currencyAdapter = CurrencyAdapter(ArrayList<Currency>())
@@ -63,9 +63,12 @@ class ValuePerDateFragment : Fragment() {
         val day = c.get(Calendar.DAY_OF_MONTH)
 
         val dpd = DatePickerDialog(requireActivity(), { _, year, monthOfYear, dayOfMonth ->
-            val date = "${dayOfMonth}/${monthOfYear}/${year}"
+
+            val parsedDayOfMonth = if (dayOfMonth < 10) "0$dayOfMonth" else "$dayOfMonth"
+            val parsedMonthOfYear = if (monthOfYear+1 < 10) "0${monthOfYear+1}" else "${monthOfYear+1}"
+            val date = "${parsedDayOfMonth}/${parsedMonthOfYear}/${year}"
             textView.text = date
-            DownloadXmlTask().execute(URL)
+            DownloadXmlTask().execute(URL.plus(date))
         }, year, month, day)
 
         dpd.datePicker.maxDate = Date().time
