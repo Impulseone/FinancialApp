@@ -3,7 +3,6 @@ package com.darklight_systems.financialapp.controller
 import android.content.Context
 import android.util.Xml
 import android.widget.Toast
-import com.darklight_systems.financialapp.R
 import com.darklight_systems.financialapp.model.Currency
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
@@ -23,7 +22,7 @@ class XmlParser {
         }
     }
 
-    fun readFeed(context: Context, parser:XmlPullParser):List<Currency> {
+    private fun readFeed(context: Context, parser:XmlPullParser):List<Currency> {
         val currencyList: ArrayList<Currency> = ArrayList()
         var isName = false
         var isValue = false

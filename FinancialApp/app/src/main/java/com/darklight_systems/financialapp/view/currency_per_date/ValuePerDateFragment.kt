@@ -1,15 +1,16 @@
-package com.darklight_systems.financialapp.view
+package com.darklight_systems.financialapp.view.currency_per_date
 
 import android.app.DatePickerDialog
 import android.os.AsyncTask
 import android.os.Bundle
-import android.preference.PreferenceManager
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.darklight_systems.financialapp.R
 import com.darklight_systems.financialapp.controller.XmlParser
 import com.darklight_systems.financialapp.model.Currency
@@ -20,27 +21,42 @@ import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
+import kotlin.collections.ArrayList
 
 class ValuePerDateFragment : Fragment() {
 
     private val URL = "https://www.cbr.ru/scripts/XML_daily.asp?date_req=14/06/2021"
 
     private lateinit var selectDateButton: Button
+    private lateinit var currencyAdapter: CurrencyAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view: View? = inflater.inflate(R.layout.fragment_value_per_date, container, false)
-        selectDateButton = view?.findViewById(R.id.select_date_button) as Button
-        selectDateButton.setOnClickListener {
-            openDobPicker(selected_date_tv)
-        }
+        setSelectDateButton(view)
+        setAdapter(view)
         return view
     }
 
+    private fun setSelectDateButton(view: View?){
+        selectDateButton = view?.findViewById(R.id.select_date_button) as Button
+        selectDateButton.setOnClickListener {
+            openDatePicker(selected_date_tv)
+        }
+    }
 
-    private fun openDobPicker(textView: TextView) {
+    private fun setAdapter(view:View?){
+        val recyclerView =
+            (view?.findViewById<RecyclerView>(R.id.currency_rv) as RecyclerView)
+        currencyAdapter = CurrencyAdapter(ArrayList<Currency>())
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.adapter = currencyAdapter
+    }
+
+
+    private fun openDatePicker(textView: TextView) {
         val c = Calendar.getInstance()
         val year = c.get(Calendar.YEAR)
         val month = c.get(Calendar.MONTH)
@@ -72,9 +88,7 @@ class ValuePerDateFragment : Fragment() {
 
         override fun onPostExecute(result: List<Currency>?) {
             if (result != null) {
-                for (currency in result) {
-                    println(currency)
-                }
+                currencyAdapter.updateData(result as ArrayList<Currency>)
             }
         }
     }
