@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.darklight_systems.financialapp.R
 import com.darklight_systems.financialapp.view.currency_per_date.ValuePerDateFragment
+import com.darklight_systems.financialapp.view.values_history.ValuesHistoryFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.tool_bar_with_menu_button.*
 
