@@ -2,6 +2,7 @@ package com.darklight_systems.financialapp.view.currency_per_date
 
 import android.app.DatePickerDialog
 import android.os.AsyncTask
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -9,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.darklight_systems.financialapp.R
@@ -20,6 +22,8 @@ import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
+import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -29,6 +33,7 @@ class ValuePerDateFragment : Fragment() {
 
     private lateinit var selectDateButton: Button
     private lateinit var currencyAdapter: CurrencyAdapter
+    private lateinit var selectedDate: LocalDate
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,7 +42,19 @@ class ValuePerDateFragment : Fragment() {
         val view: View? = inflater.inflate(R.layout.fragment_value_per_date, container, false)
         setSelectDateButton(view)
         setAdapter(view)
+        setCurrentDate(view)
         return view
+    }
+
+    private fun setCurrentDate(view: View?) {
+        selectedDate = LocalDate.now()
+        val parsedDayOfMonth =
+            if (selectedDate.dayOfMonth < 10) "0${selectedDate.dayOfMonth}" else "${selectedDate.dayOfMonth}"
+        val parsedMonthOfYear =
+            if (selectedDate.monthValue + 1 < 10) "0${selectedDate.monthValue + 1}" else "${selectedDate.monthValue + 1}"
+        val date = "${parsedDayOfMonth}/${parsedMonthOfYear}/${selectedDate.year}"
+        (view?.findViewById(R.id.selected_date_tv) as TextView).text = date
+        DownloadXmlTask().execute(URL.plus(date))
     }
 
     private fun setSelectDateButton(view: View?) {
@@ -57,15 +74,16 @@ class ValuePerDateFragment : Fragment() {
 
 
     private fun openDatePicker(textView: TextView) {
-        val c = Calendar.getInstance()
-        val year = c.get(Calendar.YEAR)
-        val month = c.get(Calendar.MONTH)
-        val day = c.get(Calendar.DAY_OF_MONTH)
+
+        val year = selectedDate.year
+        val month = selectedDate.monthValue
+        val day = selectedDate.dayOfMonth
 
         val dpd = DatePickerDialog(requireActivity(), { _, year, monthOfYear, dayOfMonth ->
-
+            selectedDate = LocalDate.of(year, monthOfYear, dayOfMonth)
             val parsedDayOfMonth = if (dayOfMonth < 10) "0$dayOfMonth" else "$dayOfMonth"
-            val parsedMonthOfYear = if (monthOfYear+1 < 10) "0${monthOfYear+1}" else "${monthOfYear+1}"
+            val parsedMonthOfYear =
+                if (monthOfYear + 1 < 10) "0${monthOfYear + 1}" else "${monthOfYear + 1}"
             val date = "${parsedDayOfMonth}/${parsedMonthOfYear}/${year}"
             textView.text = date
             DownloadXmlTask().execute(URL.plus(date))
