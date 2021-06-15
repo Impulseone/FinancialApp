@@ -2,7 +2,6 @@ package com.darklight_systems.financialapp.view.currency_per_date
 
 import android.app.DatePickerDialog
 import android.os.AsyncTask
-import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -10,11 +9,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.darklight_systems.financialapp.R
-import com.darklight_systems.financialapp.controller.XmlParser
+import com.darklight_systems.financialapp.controller.CurrencyParser
+import com.darklight_systems.financialapp.controller.downloadUrl
 import com.darklight_systems.financialapp.model.Currency
 import kotlinx.android.synthetic.main.fragment_value_per_date.*
 import org.xmlpull.v1.XmlPullParserException
@@ -22,7 +21,6 @@ import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
-import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.*
 import kotlin.collections.ArrayList
@@ -74,7 +72,6 @@ class ValuePerDateFragment : Fragment() {
 
 
     private fun openDatePicker(textView: TextView) {
-
         val year = selectedDate.year
         val month = selectedDate.monthValue
         val day = selectedDate.dayOfMonth
@@ -118,21 +115,8 @@ class ValuePerDateFragment : Fragment() {
     private fun loadXmlFromNetwork(urlString: String): List<Currency> {
         downloadUrl(urlString)?.use { stream ->
             context?.let {
-                return XmlParser().parse(it, stream)
+                return CurrencyParser().parse(it, stream)
             }
         } ?: return emptyList()
-    }
-
-    private fun downloadUrl(urlString: String): InputStream? {
-        val url = URL(urlString)
-        return (url.openConnection() as? HttpURLConnection)?.run {
-            readTimeout = 10000
-            connectTimeout = 15000
-            requestMethod = "GET"
-            doInput = true
-            // Starts the query
-            connect()
-            inputStream
-        }
     }
 }

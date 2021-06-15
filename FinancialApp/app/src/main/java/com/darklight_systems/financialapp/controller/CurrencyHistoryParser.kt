@@ -9,10 +9,9 @@ import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
 import java.io.InputStream
 
-class XmlParser {
-
+class CurrencyHistoryParser {
     @Throws(XmlPullParserException::class, IOException::class)
-    fun parse(context:Context, inputStream: InputStream): List<Currency> {
+    fun parse(context: Context, inputStream: InputStream): List<Currency> {
         inputStream.use { inputStream ->
             val parser: XmlPullParser = Xml.newPullParser()
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
@@ -22,7 +21,7 @@ class XmlParser {
         }
     }
 
-    private fun readFeed(context: Context, parser:XmlPullParser):List<Currency> {
+    private fun readFeed(context: Context, parser: XmlPullParser):List<Currency> {
         val currencyList: ArrayList<Currency> = ArrayList()
         var isName = false
         var isValue = false
