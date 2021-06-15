@@ -1,19 +1,34 @@
 package com.darklight_systems.financialapp.controller
 
 import android.content.Context
+import android.util.Xml
 import android.widget.Toast
 import com.darklight_systems.financialapp.R
 import com.darklight_systems.financialapp.model.Currency
 import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserException
+import java.io.IOException
+import java.io.InputStream
 
 class XmlParser {
-    fun parse(context: Context) {
+
+    @Throws(XmlPullParserException::class, IOException::class)
+    fun parse(context:Context, inputStream: InputStream): List<Currency> {
+        inputStream.use { inputStream ->
+            val parser: XmlPullParser = Xml.newPullParser()
+            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
+            parser.setInput(inputStream, null)
+            parser.nextTag()
+            return readFeed(context, parser)
+        }
+    }
+
+    fun readFeed(context: Context, parser:XmlPullParser):List<Currency> {
         val currencyList: ArrayList<Currency> = ArrayList()
         var isName = false
         var isValue = false
         var isNominal = false
         try {
-            val parser: XmlPullParser = context.resources.getXml(R.xml.contacts)
             var currency = Currency(0.0, "", 0)
             while (parser.eventType != XmlPullParser.END_DOCUMENT) {
                 when (parser.eventType) {
@@ -47,7 +62,6 @@ class XmlParser {
                         }
                     }
                     XmlPullParser.END_TAG -> {
-                        println(parser.name)
                         if (parser.name.equals("Valute")) {
                             currencyList.add(currency)
                             currency = Currency(0.0, "", 0)
@@ -66,8 +80,6 @@ class XmlParser {
                 Toast.LENGTH_LONG
             ).show()
         }
-        for (currency in currencyList) {
-            println(currency)
-        }
+        return currencyList
     }
 }

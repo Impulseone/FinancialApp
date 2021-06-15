@@ -12,4 +12,6 @@
     <string name="converter_fragment">Converter fragment</string>
     <string name="selected_date">Selected date</string>
     <string name="select_date">Select date</string>
+    <string name="connection_error">connection error</string>
+    <string name="xml_error">xml error</string>
 </resources>
