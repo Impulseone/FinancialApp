@@ -19,6 +19,8 @@ import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.*
 import kotlin.collections.ArrayList
@@ -99,6 +101,13 @@ class CurrencyHistoryFragment : Fragment() {
                 "dd/MM/yyyy"
             ) else parseFromLocalDateToString(selectedToDate, "dd/MM/yyyy")
             textView.text = date
+            DownloadCurrencyHistoryTask().execute(
+                CURRENCY_HISTORY_URL(
+                    parseFromLocalDateToString(selectedFromDate, "dd/MM/yyyy"),
+                    parseFromLocalDateToString(selectedToDate, "dd/MM/yyyy"),
+                    "R01235"
+                )
+            )
         }, year, month, day)
 
         dpd.datePicker.maxDate = Date().time
@@ -117,9 +126,9 @@ class CurrencyHistoryFragment : Fragment() {
         val series: LineGraphSeries<DataPoint> = LineGraphSeries(dataArray)
         graph.addSeries(series)
 
-        graph.gridLabelRenderer.labelFormatter = DateAsXAxisLabelFormatter(activity);
-        graph.gridLabelRenderer.numHorizontalLabels = 3
-        graph.viewport.setMinX(convertToDateFromLocalDate(selectedFromDate).time.toDouble())
+        graph.gridLabelRenderer.labelFormatter = DateAsXAxisLabelFormatter(activity,SimpleDateFormat("dd.MM.yy"))
+        graph.gridLabelRenderer.numHorizontalLabels = 4
+//        graph.viewport.setMinX(convertToDateFromLocalDate(selectedFromDate).time.toDouble())
 //        graph.viewport.setMaxX(convertToDateFromLocalDate(selectedToDate).time.toDouble())
 //        graph.viewport.isXAxisBoundsManual = true
 //        graph.gridLabelRenderer.setHumanRounding(false)
@@ -159,7 +168,7 @@ class CurrencyHistoryFragment : Fragment() {
         private fun loadXmlFromNetwork(urlString: String): List<Currency> {
             downloadUrl(urlString)?.use { stream ->
                 context?.let {
-                    return CurrencyParser().parse(
+                    return AllCurrenciesParser().parse(
                         it,
                         stream,
                         convertToDateFromLocalDate(selectedFromDate)

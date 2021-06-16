@@ -11,30 +11,33 @@ import java.io.InputStream
 import java.util.*
 import kotlin.collections.ArrayList
 
-class CurrencyParser {
+class AllCurrenciesParser {
 
     @Throws(XmlPullParserException::class, IOException::class)
-    fun parse(context:Context, inputStream: InputStream, date: Date): List<Currency> {
+    fun parse(context: Context, inputStream: InputStream, date: Date): List<Currency> {
         inputStream.use { inputStream ->
             val parser: XmlPullParser = Xml.newPullParser()
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
             parser.setInput(inputStream, null)
             parser.nextTag()
-            return readFeed(context, parser,date)
+            return readFeed(context, parser, date)
         }
     }
 
-    private fun readFeed(context: Context, parser:XmlPullParser, date: Date):List<Currency> {
+    private fun readFeed(context: Context, parser: XmlPullParser, date: Date): List<Currency> {
         val currencyList: ArrayList<Currency> = ArrayList()
         var isName = false
         var isValue = false
         var isNominal = false
         try {
-            var currency = Currency(0.0, "", 0,date)
+            var currency = Currency("", 0.0, "", 0, date)
             while (parser.eventType != XmlPullParser.END_DOCUMENT) {
                 when (parser.eventType) {
                     XmlPullParser.START_TAG -> {
                         when {
+                            parser.name.equals("Valute") -> {
+                                currency.id = parser.getAttributeValue(0)
+                            }
                             parser.name.equals("Name") -> {
                                 isName = true
                             }
@@ -65,7 +68,7 @@ class CurrencyParser {
                     XmlPullParser.END_TAG -> {
                         if (parser.name.equals("Valute")) {
                             currencyList.add(currency)
-                            currency = Currency(0.0, "", 0, date)
+                            currency = Currency("", 0.0, "", 0, date)
                         }
                     }
                     else -> {

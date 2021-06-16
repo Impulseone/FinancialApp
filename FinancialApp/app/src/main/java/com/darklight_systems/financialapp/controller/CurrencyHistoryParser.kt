@@ -29,7 +29,7 @@ class CurrencyHistoryParser {
         var isValue = false
         var isNominal = false
         try {
-            var currency = Currency(0.0, "", 0, Calendar.getInstance().time)
+            var currency = Currency("",0.0, "", 0, Calendar.getInstance().time)
             while (parser.eventType != XmlPullParser.END_DOCUMENT) {
                 when (parser.eventType) {
                     XmlPullParser.START_TAG -> {
@@ -61,7 +61,7 @@ class CurrencyHistoryParser {
                     XmlPullParser.END_TAG -> {
                         if (parser.name.equals("Record")) {
                             currencyList.add(currency)
-                            currency = Currency(0.0, "", 0, Calendar.getInstance().time)
+                            currency = Currency("",0.0, "", 0, Calendar.getInstance().time)
                         }
                     }
                     else -> {

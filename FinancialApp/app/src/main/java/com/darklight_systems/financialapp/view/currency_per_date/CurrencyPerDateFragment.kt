@@ -12,7 +12,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.darklight_systems.financialapp.R
-import com.darklight_systems.financialapp.controller.CurrencyParser
+import com.darklight_systems.financialapp.controller.AllCurrenciesParser
 import com.darklight_systems.financialapp.controller.convertToDateFromLocalDate
 import com.darklight_systems.financialapp.controller.downloadUrl
 import com.darklight_systems.financialapp.controller.parseFromLocalDateToString
@@ -106,7 +106,7 @@ class CurrencyPerDateFragment : Fragment() {
         private fun loadXmlFromNetwork(urlString: String): List<Currency> {
             downloadUrl(urlString)?.use { stream ->
                 context?.let {
-                    return CurrencyParser().parse(it, stream, convertToDateFromLocalDate(selectedDate))
+                    return AllCurrenciesParser().parse(it, stream, convertToDateFromLocalDate(selectedDate))
                 }
             } ?: return emptyList()
         }
