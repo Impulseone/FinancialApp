@@ -15,6 +15,7 @@ import com.darklight_systems.financialapp.R
 import com.darklight_systems.financialapp.controller.CurrencyParser
 import com.darklight_systems.financialapp.controller.convertToDateFromLocalDate
 import com.darklight_systems.financialapp.controller.downloadUrl
+import com.darklight_systems.financialapp.controller.parseFromLocalDateToString
 import com.darklight_systems.financialapp.model.Currency
 import com.darklight_systems.financialapp.model.GET_ALL_CURRENCY_URL
 import kotlinx.android.synthetic.main.fragment_currency_per_date.*
@@ -43,11 +44,7 @@ class CurrencyPerDateFragment : Fragment() {
 
     private fun setCurrentDate(view: View?) {
         selectedDate = LocalDate.now()
-        val parsedDayOfMonth =
-            if (selectedDate.dayOfMonth < 10) "0${selectedDate.dayOfMonth}" else "${selectedDate.dayOfMonth}"
-        val parsedMonthOfYear =
-            if (selectedDate.monthValue + 1 < 10) "0${selectedDate.monthValue + 1}" else "${selectedDate.monthValue + 1}"
-        val date = "${parsedDayOfMonth}/${parsedMonthOfYear}/${selectedDate.year}"
+        val date = parseFromLocalDateToString(selectedDate,"dd/MM/yyyy")
         (view?.findViewById(R.id.selected_date_tv) as TextView).text = date
         DownloadCurrenciesTask().execute(GET_ALL_CURRENCY_URL(date))
     }
@@ -61,8 +58,8 @@ class CurrencyPerDateFragment : Fragment() {
 
     private fun setAdapter(view: View?) {
         val recyclerView =
-            (view?.findViewById<RecyclerView>(R.id.currency_rv) as RecyclerView)
-        currencyAdapter = CurrencyAdapter(ArrayList<Currency>())
+            (view?.findViewById(R.id.currency_rv) as RecyclerView)
+        currencyAdapter = CurrencyAdapter(ArrayList())
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = currencyAdapter
     }

@@ -5,6 +5,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 fun downloadUrl(urlString: String): InputStream? {
@@ -28,10 +29,5 @@ fun convertToDateFromLocalDate(dateToConvert: LocalDate): Date {
     )
 }
 
-fun parseFromLocalDateToString(date: LocalDate): String {
-    val parsedDayOfMonth =
-        if (date.dayOfMonth < 10) "0${date.dayOfMonth}" else "${date.dayOfMonth}"
-    val parsedMonthOfYear =
-        if (date.monthValue < 10) "0${date.monthValue}" else "${date.monthValue}"
-    return "${parsedDayOfMonth}/${parsedMonthOfYear}/${date.year}"
-}
+fun parseFromLocalDateToString(date: LocalDate, pattern: String): String =
+    date.format(DateTimeFormatter.ofPattern(pattern))

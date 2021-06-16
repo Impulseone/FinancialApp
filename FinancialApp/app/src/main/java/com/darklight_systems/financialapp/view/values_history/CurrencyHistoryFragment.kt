@@ -43,12 +43,17 @@ class CurrencyHistoryFragment : Fragment() {
         DownloadCurrencyTask().execute(
             GET_ALL_CURRENCY_URL(
                 parseFromLocalDateToString(
-                    selectedToDate
+                    selectedToDate,
+                    "dd/MM/yyyy"
                 )
             )
         )
-        DownloadCurrencyHistoryTask().execute(CURRENCY_HISTORY_URL(parseFromLocalDateToString(selectedFromDate),
-            parseFromLocalDateToString(selectedToDate),"R01235"))
+        DownloadCurrencyHistoryTask().execute(
+            CURRENCY_HISTORY_URL(
+                parseFromLocalDateToString(selectedFromDate, "dd/MM/yyyy"),
+                parseFromLocalDateToString(selectedToDate, "dd/MM/yyyy"), "R01235"
+            )
+        )
 
         return view
     }
@@ -95,9 +100,9 @@ class CurrencyHistoryFragment : Fragment() {
         selectedFromDate = LocalDate.now().minusDays(7)
         selectedToDate = LocalDate.now()
         (view?.findViewById(R.id.from_tv) as TextView).text =
-            parseFromLocalDateToString(selectedFromDate)
+            parseFromLocalDateToString(selectedFromDate, "dd/MM/yyyy")
         (view.findViewById(R.id.to_tv) as TextView).text =
-            parseFromLocalDateToString(selectedToDate)
+            parseFromLocalDateToString(selectedToDate, "dd/MM/yyyy")
     }
 
     private fun initSpinner(view: View?) {
@@ -114,12 +119,10 @@ class CurrencyHistoryFragment : Fragment() {
 
         graph.gridLabelRenderer.labelFormatter = DateAsXAxisLabelFormatter(activity);
         graph.gridLabelRenderer.numHorizontalLabels = 3
-
         graph.viewport.setMinX(convertToDateFromLocalDate(selectedFromDate).time.toDouble())
-        graph.viewport.setMaxX(convertToDateFromLocalDate(selectedToDate).time.toDouble())
-        graph.viewport.isXAxisBoundsManual = true
-
-        graph.gridLabelRenderer.setHumanRounding(false)
+//        graph.viewport.setMaxX(convertToDateFromLocalDate(selectedToDate).time.toDouble())
+//        graph.viewport.isXAxisBoundsManual = true
+//        graph.gridLabelRenderer.setHumanRounding(false)
     }
 
     private inner class DownloadCurrencyTask : AsyncTask<String, Void, List<Currency>>() {
