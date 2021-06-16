@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    tools:context=".view.currency_per_date.ValuePerDateFragment">
+    tools:context=".view.currency_per_date.CurrencyPerDateFragment">
 
     <TextView
         android:id="@+id/selected_date_tv"

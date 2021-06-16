@@ -8,32 +8,35 @@ import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
 import java.io.InputStream
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class CurrencyHistoryParser {
     @Throws(XmlPullParserException::class, IOException::class)
-    fun parse(context: Context, inputStream: InputStream): List<Currency> {
+    fun parse(context: Context, inputStream: InputStream, date: Date): List<Currency> {
         inputStream.use { inputStream ->
             val parser: XmlPullParser = Xml.newPullParser()
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
             parser.setInput(inputStream, null)
             parser.nextTag()
-            return readFeed(context, parser)
+            return readFeed(context, parser, date)
         }
     }
 
-    private fun readFeed(context: Context, parser: XmlPullParser):List<Currency> {
+    private fun readFeed(context: Context, parser: XmlPullParser, date: Date): List<Currency> {
         val currencyList: ArrayList<Currency> = ArrayList()
-        var isName = false
         var isValue = false
         var isNominal = false
         try {
-            var currency = Currency(0.0, "", 0)
+            var currency = Currency(0.0, "", 0, date)
             while (parser.eventType != XmlPullParser.END_DOCUMENT) {
                 when (parser.eventType) {
                     XmlPullParser.START_TAG -> {
                         when {
-                            parser.name.equals("Name") -> {
-                                isName = true
+                            parser.name.equals("Record") -> {
+                                val dateString: String = parser.getAttributeValue(0)
+                                currency.date = SimpleDateFormat("dd.MM.yyyy").parse(dateString)
                             }
                             parser.name.equals("Value") -> {
                                 isValue = true
@@ -45,10 +48,6 @@ class CurrencyHistoryParser {
                     }
                     XmlPullParser.TEXT -> {
                         when {
-                            isName -> {
-                                isName = false
-                                currency.name = parser.text
-                            }
                             isValue -> {
                                 isValue = false
                                 currency.value = parser.text.replace(",", ".").toDouble()
@@ -60,9 +59,9 @@ class CurrencyHistoryParser {
                         }
                     }
                     XmlPullParser.END_TAG -> {
-                        if (parser.name.equals("Valute")) {
+                        if (parser.name.equals("Record")) {
                             currencyList.add(currency)
-                            currency = Currency(0.0, "", 0)
+                            currency = Currency(0.0, "", 0, date)
                         }
                     }
                     else -> {

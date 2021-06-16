@@ -10,8 +10,10 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import com.darklight_systems.financialapp.R
 import com.darklight_systems.financialapp.controller.CurrencyParser
+import com.darklight_systems.financialapp.controller.convertToDateFromLocalDate
 import com.darklight_systems.financialapp.controller.downloadUrl
 import com.darklight_systems.financialapp.model.Currency
+import com.darklight_systems.financialapp.model.GET_ALL_CURRENCY_URL
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter
 import com.jjoe64.graphview.series.DataPoint
@@ -19,16 +21,12 @@ import com.jjoe64.graphview.series.LineGraphSeries
 import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
 import java.time.LocalDate
-import java.time.ZoneId
 import java.util.*
 import kotlin.collections.ArrayList
 
 
-class ValuesHistoryFragment : Fragment() {
+class CurrencyHistoryFragment : Fragment() {
 
-    private val URL =
-        "http://www.cbr.ru/scripts/XML_dynamic.asp?date_req1=02/03/2020&date_req2=28/05/2020&VAL_NM_RQ=R01235"
-    private val GET_ALL_URL = "https://www.cbr.ru/scripts/XML_daily.asp?date_req="
     private lateinit var dateFromButton: Button
     private lateinit var dateToButton: Button
     private lateinit var selectedFromDate: LocalDate
@@ -39,12 +37,17 @@ class ValuesHistoryFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view: View? = inflater.inflate(R.layout.fragment_values_history, container, false)
+        val view: View? = inflater.inflate(R.layout.fragment_currency_history, container, false)
         initButtons(view)
         initDates(view)
         initSpinner(view)
-        drawGraph(view)
-        DownloadCurrencyTask().execute(GET_ALL_URL.plus(parseDate(selectedToDate)))
+        DownloadCurrencyTask().execute(
+            GET_ALL_CURRENCY_URL(
+                parseFromLocalDateToString(
+                    selectedToDate
+                )
+            )
+        )
         return view
     }
 
@@ -89,51 +92,35 @@ class ValuesHistoryFragment : Fragment() {
     private fun initDates(view: View?) {
         selectedFromDate = LocalDate.now().minusDays(7)
         selectedToDate = LocalDate.now()
-        (view?.findViewById(R.id.from_tv) as TextView).text = parseDate(selectedFromDate)
-        (view.findViewById(R.id.to_tv) as TextView).text = parseDate(selectedToDate)
+        (view?.findViewById(R.id.from_tv) as TextView).text =
+            parseFromLocalDateToString(selectedFromDate)
+        (view.findViewById(R.id.to_tv) as TextView).text =
+            parseFromLocalDateToString(selectedToDate)
     }
 
     private fun initSpinner(view: View?) {
         spinner = (view?.findViewById(R.id.spinner) as Spinner)
     }
 
-    private fun drawGraph(view: View?) {
+    private fun drawGraph(view: View?, dataList: ArrayList<Pair<Date, Double>>) {
         val graph = view?.findViewById(R.id.graph) as GraphView
-        val series: LineGraphSeries<DataPoint> = LineGraphSeries(
-            arrayOf(
-                DataPoint(
-                    convertToDateViaInstant(selectedFromDate), 1.0
-                ),
-                DataPoint(
-                    convertToDateViaInstant(selectedToDate), 2.0
-                ),
-            )
-        )
+        val dataArray: Array<DataPoint?> = arrayOfNulls(dataList.size)
+        for ((index, element) in dataList.withIndex()) dataArray[index] =
+            DataPoint(element.first, element.second)
+        val series: LineGraphSeries<DataPoint> = LineGraphSeries(dataArray)
         graph.addSeries(series)
 
-        // set date label formatter
         graph.gridLabelRenderer.labelFormatter = DateAsXAxisLabelFormatter(activity);
-        graph.gridLabelRenderer.numHorizontalLabels = 3 // only 4 because of the space
+        graph.gridLabelRenderer.numHorizontalLabels = 3
 
-// set manual x bounds to have nice steps
-        graph.viewport.setMinX(convertToDateViaInstant(selectedFromDate).time.toDouble())
-        graph.viewport.setMaxX(convertToDateViaInstant(selectedToDate).time.toDouble())
+        graph.viewport.setMinX(convertToDateFromLocalDate(selectedFromDate).time.toDouble())
+        graph.viewport.setMaxX(convertToDateFromLocalDate(selectedToDate).time.toDouble())
         graph.viewport.isXAxisBoundsManual = true
 
-// as we use dates as labels, the human rounding to nice readable numbers
-// is not necessary
         graph.gridLabelRenderer.setHumanRounding(false)
     }
 
-    private fun convertToDateViaInstant(dateToConvert: LocalDate): Date {
-        return Date.from(
-            dateToConvert.atStartOfDay()
-                .atZone(ZoneId.systemDefault())
-                .toInstant()
-        )
-    }
-
-    private fun parseDate(date: LocalDate): String {
+    private fun parseFromLocalDateToString(date: LocalDate): String {
         val parsedDayOfMonth =
             if (date.dayOfMonth < 10) "0${date.dayOfMonth}" else "${date.dayOfMonth}"
         val parsedMonthOfYear =
@@ -170,21 +157,26 @@ class ValuesHistoryFragment : Fragment() {
                 spinner.adapter = adapter
             }
         }
+
+        @Throws(XmlPullParserException::class, IOException::class)
+        private fun loadXmlFromNetwork(urlString: String): List<Currency> {
+            downloadUrl(urlString)?.use { stream ->
+                context?.let {
+                    return CurrencyParser().parse(it, stream, convertToDateFromLocalDate(selectedFromDate))
+                }
+            } ?: return emptyList()
+        }
     }
 
     private inner class DownloadCurrencyHistoryTask : AsyncTask<String, Void, Void>() {
+
         override fun doInBackground(vararg url: String?): Void? {
             return null
         }
 
-    }
+        override fun onPostExecute(result: Void?) {
+//            drawGraph()
+        }
 
-    @Throws(XmlPullParserException::class, IOException::class)
-    private fun loadXmlFromNetwork(urlString: String): List<Currency> {
-        downloadUrl(urlString)?.use { stream ->
-            context?.let {
-                return CurrencyParser().parse(it, stream)
-            }
-        } ?: return emptyList()
     }
 }

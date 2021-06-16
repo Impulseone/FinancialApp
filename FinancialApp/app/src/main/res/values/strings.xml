@@ -16,4 +16,5 @@
     <string name="xml_error">xml error</string>
     <string name="from">FROM</string>
     <string name="to">TO</string>
+    <string name="currency">Currency:</string>
 </resources>

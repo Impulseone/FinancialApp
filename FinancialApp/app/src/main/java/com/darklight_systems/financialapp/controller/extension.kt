@@ -3,6 +3,9 @@ package com.darklight_systems.financialapp.controller
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
+import java.time.LocalDate
+import java.time.ZoneId
+import java.util.*
 
 fun downloadUrl(urlString: String): InputStream? {
     val url = URL(urlString)
@@ -15,4 +18,12 @@ fun downloadUrl(urlString: String): InputStream? {
         connect()
         inputStream
     }
+}
+
+fun convertToDateFromLocalDate(dateToConvert: LocalDate): Date {
+    return Date.from(
+        dateToConvert.atStartOfDay()
+            .atZone(ZoneId.systemDefault())
+            .toInstant()
+    )
 }

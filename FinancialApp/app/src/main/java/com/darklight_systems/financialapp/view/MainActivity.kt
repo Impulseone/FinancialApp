@@ -11,8 +11,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.darklight_systems.financialapp.R
-import com.darklight_systems.financialapp.view.currency_per_date.ValuePerDateFragment
-import com.darklight_systems.financialapp.view.values_history.ValuesHistoryFragment
+import com.darklight_systems.financialapp.view.currency_per_date.CurrencyPerDateFragment
+import com.darklight_systems.financialapp.view.values_history.CurrencyHistoryFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.tool_bar_with_menu_button.*
 
@@ -20,13 +20,13 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var leftMenuTitlesArray: Array<String>
     private lateinit var mDrawerToggle: ActionBarDrawerToggle
-    private lateinit var valuePerDateFragment: ValuePerDateFragment
+    private lateinit var currencyPerDateFragment: CurrencyPerDateFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         leftMenuTitlesArray = resources.getStringArray(R.array.left_menu_titles)
-        valuePerDateFragment = ValuePerDateFragment()
+        currencyPerDateFragment = CurrencyPerDateFragment()
         createToolbar()
         createLeftNavigationMenu()
         createValuePerDateFragment()
@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun createValuePerDateFragment() {
         val ft = supportFragmentManager.beginTransaction()
-        ft.replace(R.id.main_relative_layout, valuePerDateFragment)
+        ft.replace(R.id.main_relative_layout, currencyPerDateFragment)
         ft.commit()
     }
 
@@ -70,10 +70,10 @@ class MainActivity : AppCompatActivity() {
     private fun checkoutToSelectedFragment(position: Int) {
         val fragment: Fragment =
             when (position) {
-                0 -> ValuePerDateFragment()
-                1 -> ValuesHistoryFragment()
+                0 -> CurrencyPerDateFragment()
+                1 -> CurrencyHistoryFragment()
                 2 -> ConverterFragment()
-                else -> ValuePerDateFragment()
+                else -> CurrencyPerDateFragment()
             }
         changeFragment(fragment, position)
         left_drawer.setItemChecked(position, true)

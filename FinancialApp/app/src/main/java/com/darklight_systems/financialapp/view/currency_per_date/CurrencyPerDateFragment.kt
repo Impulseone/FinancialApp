@@ -13,21 +13,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.darklight_systems.financialapp.R
 import com.darklight_systems.financialapp.controller.CurrencyParser
+import com.darklight_systems.financialapp.controller.convertToDateFromLocalDate
 import com.darklight_systems.financialapp.controller.downloadUrl
 import com.darklight_systems.financialapp.model.Currency
-import kotlinx.android.synthetic.main.fragment_value_per_date.*
+import com.darklight_systems.financialapp.model.GET_ALL_CURRENCY_URL
+import kotlinx.android.synthetic.main.fragment_currency_per_date.*
 import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
-import java.io.InputStream
-import java.net.HttpURLConnection
-import java.net.URL
 import java.time.LocalDate
 import java.util.*
 import kotlin.collections.ArrayList
 
-class ValuePerDateFragment : Fragment() {
-
-    private val URL = "https://www.cbr.ru/scripts/XML_daily.asp?date_req="
+class CurrencyPerDateFragment : Fragment() {
 
     private lateinit var selectDateButton: Button
     private lateinit var currencyAdapter: CurrencyAdapter
@@ -37,7 +34,7 @@ class ValuePerDateFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view: View? = inflater.inflate(R.layout.fragment_value_per_date, container, false)
+        val view: View? = inflater.inflate(R.layout.fragment_currency_per_date, container, false)
         setSelectDateButton(view)
         setAdapter(view)
         setCurrentDate(view)
@@ -52,7 +49,7 @@ class ValuePerDateFragment : Fragment() {
             if (selectedDate.monthValue + 1 < 10) "0${selectedDate.monthValue + 1}" else "${selectedDate.monthValue + 1}"
         val date = "${parsedDayOfMonth}/${parsedMonthOfYear}/${selectedDate.year}"
         (view?.findViewById(R.id.selected_date_tv) as TextView).text = date
-        DownloadXmlTask().execute(URL.plus(date))
+        DownloadCurrenciesTask().execute(GET_ALL_CURRENCY_URL(date))
     }
 
     private fun setSelectDateButton(view: View?) {
@@ -83,7 +80,7 @@ class ValuePerDateFragment : Fragment() {
                 if (monthOfYear + 1 < 10) "0${monthOfYear + 1}" else "${monthOfYear + 1}"
             val date = "${parsedDayOfMonth}/${parsedMonthOfYear}/${year}"
             textView.text = date
-            DownloadXmlTask().execute(URL.plus(date))
+            DownloadCurrenciesTask().execute(GET_ALL_CURRENCY_URL(date))
         }, year, month, day)
 
         dpd.datePicker.maxDate = Date().time
@@ -91,7 +88,8 @@ class ValuePerDateFragment : Fragment() {
         dpd.show()
     }
 
-    private inner class DownloadXmlTask : AsyncTask<String, Void, List<Currency>>() {
+    private inner class DownloadCurrenciesTask : AsyncTask<String, Void, List<Currency>>() {
+
         override fun doInBackground(vararg urls: String): List<Currency> {
             return try {
                 loadXmlFromNetwork(urls[0])
@@ -109,14 +107,14 @@ class ValuePerDateFragment : Fragment() {
                 currencyAdapter.updateData(result as ArrayList<Currency>)
             }
         }
-    }
 
-    @Throws(XmlPullParserException::class, IOException::class)
-    private fun loadXmlFromNetwork(urlString: String): List<Currency> {
-        downloadUrl(urlString)?.use { stream ->
-            context?.let {
-                return CurrencyParser().parse(it, stream)
-            }
-        } ?: return emptyList()
+        @Throws(XmlPullParserException::class, IOException::class)
+        private fun loadXmlFromNetwork(urlString: String): List<Currency> {
+            downloadUrl(urlString)?.use { stream ->
+                context?.let {
+                    return CurrencyParser().parse(it, stream, convertToDateFromLocalDate(selectedDate))
+                }
+            } ?: return emptyList()
+        }
     }
 }

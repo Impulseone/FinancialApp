@@ -8,7 +8,7 @@
     android:layout_marginStart="10dp"
     android:layout_marginEnd="10dp"
     android:orientation="vertical"
-    tools:context=".view.values_history.ValuesHistoryFragment">
+    tools:context=".view.values_history.CurrencyHistoryFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -47,7 +47,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Currency:"/>
+            android:text="@string/currency"/>
         <Spinner
             android:id="@+id/spinner"
             android:layout_width="match_parent"
@@ -56,8 +56,10 @@
 
     <com.jjoe64.graphview.GraphView
         android:layout_marginTop="50dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="10dp"
         android:layout_width="match_parent"
-        android:layout_height="200dip"
+        android:layout_height="200dp"
         android:id="@+id/graph" />
 
 
