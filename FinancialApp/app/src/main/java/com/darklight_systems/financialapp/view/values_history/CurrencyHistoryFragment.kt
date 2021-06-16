@@ -58,6 +58,15 @@ class CurrencyHistoryFragment : Fragment() {
         return view
     }
 
+    private fun initDates(view: View?) {
+        selectedFromDate = LocalDate.now().minusDays(7)
+        selectedToDate = LocalDate.now()
+        (view?.findViewById(R.id.from_tv) as TextView).text =
+            parseFromLocalDateToString(selectedFromDate, "dd/MM/yyyy")
+        (view.findViewById(R.id.to_tv) as TextView).text =
+            parseFromLocalDateToString(selectedToDate, "dd/MM/yyyy")
+    }
+
     private fun initButtons(view: View?) {
         dateFromButton = (view?.findViewById(R.id.from_btn) as Button)
         dateFromButton.setOnClickListener {
@@ -79,30 +88,21 @@ class CurrencyHistoryFragment : Fragment() {
 
     private fun openDatePicker(textView: TextView, date: LocalDate, isFromDate: Boolean) {
         val year = date.year
-        val month = date.monthValue
+        val month = date.monthValue - 1
         val day = date.dayOfMonth
 
         val dpd = DatePickerDialog(requireActivity(), { _, year, monthOfYear, dayOfMonth ->
-            if (isFromDate) selectedFromDate = LocalDate.of(year, monthOfYear, dayOfMonth)
-            else selectedToDate = LocalDate.of(year, monthOfYear, dayOfMonth)
-            val parsedDayOfMonth = if (dayOfMonth < 10) "0$dayOfMonth" else "$dayOfMonth"
-            val parsedMonthOfYear =
-                if (monthOfYear < 10) "0${monthOfYear}" else "$monthOfYear"
-            val date = "${parsedDayOfMonth}/${parsedMonthOfYear}/${year}"
+            if (isFromDate) selectedFromDate = LocalDate.of(year, monthOfYear + 1, dayOfMonth)
+            else selectedToDate = LocalDate.of(year, monthOfYear + 1, dayOfMonth)
+            val date = if (isFromDate) parseFromLocalDateToString(
+                selectedFromDate,
+                "dd/MM/yyyy"
+            ) else parseFromLocalDateToString(selectedToDate, "dd/MM/yyyy")
             textView.text = date
         }, year, month, day)
 
         dpd.datePicker.maxDate = Date().time
         dpd.show()
-    }
-
-    private fun initDates(view: View?) {
-        selectedFromDate = LocalDate.now().minusDays(7)
-        selectedToDate = LocalDate.now()
-        (view?.findViewById(R.id.from_tv) as TextView).text =
-            parseFromLocalDateToString(selectedFromDate, "dd/MM/yyyy")
-        (view.findViewById(R.id.to_tv) as TextView).text =
-            parseFromLocalDateToString(selectedToDate, "dd/MM/yyyy")
     }
 
     private fun initSpinner(view: View?) {

@@ -67,18 +67,15 @@ class CurrencyPerDateFragment : Fragment() {
 
     private fun openDatePicker(textView: TextView) {
         val year = selectedDate.year
-        val month = selectedDate.monthValue
+        val month = selectedDate.monthValue-1
         val day = selectedDate.dayOfMonth
-
         val dpd = DatePickerDialog(requireActivity(), { _, year, monthOfYear, dayOfMonth ->
-            selectedDate = LocalDate.of(year, monthOfYear, dayOfMonth)
-            val parsedDayOfMonth = if (dayOfMonth < 10) "0$dayOfMonth" else "$dayOfMonth"
-            val parsedMonthOfYear =
-                if (monthOfYear + 1 < 10) "0${monthOfYear + 1}" else "${monthOfYear + 1}"
-            val date = "${parsedDayOfMonth}/${parsedMonthOfYear}/${year}"
-            textView.text = date
-            DownloadCurrenciesTask().execute(GET_ALL_CURRENCY_URL(date))
-        }, year, month, day)
+            selectedDate = LocalDate.of(year, monthOfYear+1, dayOfMonth)
+            val dateString = parseFromLocalDateToString(selectedDate,"dd/MM/yyyy")
+            textView.text = dateString
+            DownloadCurrenciesTask().execute(GET_ALL_CURRENCY_URL(dateString))
+        },
+            year, month, day)
 
         dpd.datePicker.maxDate = Date().time
 
