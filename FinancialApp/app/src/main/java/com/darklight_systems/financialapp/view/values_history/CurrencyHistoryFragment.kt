@@ -9,9 +9,8 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
 import com.darklight_systems.financialapp.R
-import com.darklight_systems.financialapp.controller.CurrencyParser
-import com.darklight_systems.financialapp.controller.convertToDateFromLocalDate
-import com.darklight_systems.financialapp.controller.downloadUrl
+import com.darklight_systems.financialapp.controller.*
+import com.darklight_systems.financialapp.model.CURRENCY_HISTORY_URL
 import com.darklight_systems.financialapp.model.Currency
 import com.darklight_systems.financialapp.model.GET_ALL_CURRENCY_URL
 import com.jjoe64.graphview.GraphView
@@ -38,8 +37,8 @@ class CurrencyHistoryFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view: View? = inflater.inflate(R.layout.fragment_currency_history, container, false)
-        initButtons(view)
         initDates(view)
+        initButtons(view)
         initSpinner(view)
         DownloadCurrencyTask().execute(
             GET_ALL_CURRENCY_URL(
@@ -48,6 +47,9 @@ class CurrencyHistoryFragment : Fragment() {
                 )
             )
         )
+        DownloadCurrencyHistoryTask().execute(CURRENCY_HISTORY_URL(parseFromLocalDateToString(selectedFromDate),
+            parseFromLocalDateToString(selectedToDate),"R01235"))
+
         return view
     }
 
@@ -102,11 +104,11 @@ class CurrencyHistoryFragment : Fragment() {
         spinner = (view?.findViewById(R.id.spinner) as Spinner)
     }
 
-    private fun drawGraph(view: View?, dataList: ArrayList<Pair<Date, Double>>) {
+    private fun drawGraph(view: View?, dataList: ArrayList<Currency>) {
         val graph = view?.findViewById(R.id.graph) as GraphView
         val dataArray: Array<DataPoint?> = arrayOfNulls(dataList.size)
         for ((index, element) in dataList.withIndex()) dataArray[index] =
-            DataPoint(element.first, element.second)
+            DataPoint(element.date, element.value)
         val series: LineGraphSeries<DataPoint> = LineGraphSeries(dataArray)
         graph.addSeries(series)
 
@@ -118,14 +120,6 @@ class CurrencyHistoryFragment : Fragment() {
         graph.viewport.isXAxisBoundsManual = true
 
         graph.gridLabelRenderer.setHumanRounding(false)
-    }
-
-    private fun parseFromLocalDateToString(date: LocalDate): String {
-        val parsedDayOfMonth =
-            if (date.dayOfMonth < 10) "0${date.dayOfMonth}" else "${date.dayOfMonth}"
-        val parsedMonthOfYear =
-            if (date.monthValue + 1 < 10) "0${date.monthValue + 1}" else "${date.monthValue + 1}"
-        return "${parsedDayOfMonth}/${parsedMonthOfYear}/${date.year}"
     }
 
     private inner class DownloadCurrencyTask : AsyncTask<String, Void, List<Currency>>() {
@@ -162,20 +156,46 @@ class CurrencyHistoryFragment : Fragment() {
         private fun loadXmlFromNetwork(urlString: String): List<Currency> {
             downloadUrl(urlString)?.use { stream ->
                 context?.let {
-                    return CurrencyParser().parse(it, stream, convertToDateFromLocalDate(selectedFromDate))
+                    return CurrencyParser().parse(
+                        it,
+                        stream,
+                        convertToDateFromLocalDate(selectedFromDate)
+                    )
                 }
             } ?: return emptyList()
         }
     }
 
-    private inner class DownloadCurrencyHistoryTask : AsyncTask<String, Void, Void>() {
+    private inner class DownloadCurrencyHistoryTask :
+        AsyncTask<String, Void, ArrayList<Currency>>() {
 
-        override fun doInBackground(vararg url: String?): Void? {
-            return null
+        override fun doInBackground(vararg url: String): ArrayList<Currency> {
+            return try {
+                loadXmlFromNetwork(url[0])
+            } catch (e: IOException) {
+                e.printStackTrace()
+                ArrayList()
+            } catch (e: XmlPullParserException) {
+                e.printStackTrace()
+                ArrayList()
+            }
         }
 
-        override fun onPostExecute(result: Void?) {
-//            drawGraph()
+
+        @Throws(XmlPullParserException::class, IOException::class)
+        private fun loadXmlFromNetwork(urlString: String): ArrayList<Currency> {
+            downloadUrl(urlString)?.use { stream ->
+                context?.let {
+                    return CurrencyHistoryParser().parse(
+                        it,
+                        stream
+                    ) as ArrayList<Currency>
+                }
+            } ?: return ArrayList()
+        }
+
+        override fun onPostExecute(result: ArrayList<Currency>) {
+            drawGraph(view, result)
         }
 
     }

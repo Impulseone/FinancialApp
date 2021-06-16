@@ -27,3 +27,11 @@ fun convertToDateFromLocalDate(dateToConvert: LocalDate): Date {
             .toInstant()
     )
 }
+
+fun parseFromLocalDateToString(date: LocalDate): String {
+    val parsedDayOfMonth =
+        if (date.dayOfMonth < 10) "0${date.dayOfMonth}" else "${date.dayOfMonth}"
+    val parsedMonthOfYear =
+        if (date.monthValue < 10) "0${date.monthValue}" else "${date.monthValue}"
+    return "${parsedDayOfMonth}/${parsedMonthOfYear}/${date.year}"
+}

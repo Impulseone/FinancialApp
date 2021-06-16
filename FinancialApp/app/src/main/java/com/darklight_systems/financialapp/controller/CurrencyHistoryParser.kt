@@ -14,22 +14,22 @@ import kotlin.collections.ArrayList
 
 class CurrencyHistoryParser {
     @Throws(XmlPullParserException::class, IOException::class)
-    fun parse(context: Context, inputStream: InputStream, date: Date): List<Currency> {
+    fun parse(context: Context, inputStream: InputStream): List<Currency> {
         inputStream.use { inputStream ->
             val parser: XmlPullParser = Xml.newPullParser()
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
             parser.setInput(inputStream, null)
             parser.nextTag()
-            return readFeed(context, parser, date)
+            return readFeed(context, parser)
         }
     }
 
-    private fun readFeed(context: Context, parser: XmlPullParser, date: Date): List<Currency> {
+    private fun readFeed(context: Context, parser: XmlPullParser): List<Currency> {
         val currencyList: ArrayList<Currency> = ArrayList()
         var isValue = false
         var isNominal = false
         try {
-            var currency = Currency(0.0, "", 0, date)
+            var currency = Currency(0.0, "", 0, Calendar.getInstance().time)
             while (parser.eventType != XmlPullParser.END_DOCUMENT) {
                 when (parser.eventType) {
                     XmlPullParser.START_TAG -> {
@@ -61,7 +61,7 @@ class CurrencyHistoryParser {
                     XmlPullParser.END_TAG -> {
                         if (parser.name.equals("Record")) {
                             currencyList.add(currency)
-                            currency = Currency(0.0, "", 0, date)
+                            currency = Currency(0.0, "", 0, Calendar.getInstance().time)
                         }
                     }
                     else -> {
