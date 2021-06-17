@@ -11,10 +11,10 @@ import java.io.InputStream
 import java.util.*
 import kotlin.collections.ArrayList
 
-class AllCurrenciesParser {
+class AllCurrenciesParser:XmlParser {
 
     @Throws(XmlPullParserException::class, IOException::class)
-    fun parse(context: Context, inputStream: InputStream, date: Date): List<Currency> {
+    override fun parse(context: Context, inputStream: InputStream, date: Date): List<Currency> {
         inputStream.use { inputStream ->
             val parser: XmlPullParser = Xml.newPullParser()
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)

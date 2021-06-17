@@ -197,8 +197,10 @@ class ConverterFragment : Fragment() {
         override fun doInBackground(vararg urls: Pair<String, String>): Double {
             return try {
 
-                val firstCurrency: Currency = loadXmlFromNetwork(urls[0].first)[0]
-                val secondCurrency: Currency = loadXmlFromNetwork(urls[0].second)[0]
+                val firstCurrency: Currency =
+                    loadXmlFromNetwork(urls[0].first, CurrencyHistoryParser(), view.context)[0]
+                val secondCurrency: Currency =
+                    loadXmlFromNetwork(urls[0].second, CurrencyHistoryParser(), view.context)[0]
                 val firstCurrencyValue: Double =
                     if (firstCurrency.nominal > 1) (firstCurrency.value / firstCurrency.nominal) else firstCurrency.value
                 val secondCurrencyValue: Double =
@@ -212,18 +214,6 @@ class ConverterFragment : Fragment() {
 
         override fun onPostExecute(result: Double?) {
             view.findViewById<TextView>(R.id.calculating_result).text = result.toString()
-        }
-
-        @Throws(XmlPullParserException::class, IOException::class)
-        private fun loadXmlFromNetwork(urlString: String): ArrayList<Currency> {
-            downloadUrl(urlString)?.use { stream ->
-                context?.let {
-                    return CurrencyHistoryParser().parse(
-                        it,
-                        stream
-                    ) as ArrayList<Currency>
-                }
-            } ?: return ArrayList()
         }
 
     }

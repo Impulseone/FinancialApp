@@ -12,10 +12,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.darklight_systems.financialapp.R
-import com.darklight_systems.financialapp.controller.AllCurrenciesParser
-import com.darklight_systems.financialapp.controller.convertToDateFromLocalDate
-import com.darklight_systems.financialapp.controller.downloadUrl
-import com.darklight_systems.financialapp.controller.parseFromLocalDateToString
+import com.darklight_systems.financialapp.controller.*
 import com.darklight_systems.financialapp.model.Currency
 import com.darklight_systems.financialapp.model.GET_ALL_CURRENCY_URL
 import kotlinx.android.synthetic.main.fragment_currency_per_date.*
@@ -87,7 +84,7 @@ class CurrencyPerDateFragment : Fragment() {
 
         override fun doInBackground(vararg urls: String): List<Currency> {
             return try {
-                loadXmlFromNetwork(urls[0])
+                loadXmlFromNetwork(urls[0], AllCurrenciesParser(),context)
             } catch (e: IOException) {
                 e.printStackTrace()
                 ArrayList()
@@ -101,19 +98,6 @@ class CurrencyPerDateFragment : Fragment() {
             if (result != null) {
                 currencyAdapter.updateData(result as ArrayList<Currency>)
             }
-        }
-
-        @Throws(XmlPullParserException::class, IOException::class)
-        private fun loadXmlFromNetwork(urlString: String): List<Currency> {
-            downloadUrl(urlString)?.use { stream ->
-                context?.let {
-                    return AllCurrenciesParser().parse(
-                        it,
-                        stream,
-                        convertToDateFromLocalDate(selectedDate)
-                    )
-                }
-            } ?: return ArrayList()
         }
     }
 }

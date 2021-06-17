@@ -12,9 +12,10 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-class CurrencyHistoryParser {
+class CurrencyHistoryParser: XmlParser{
+
     @Throws(XmlPullParserException::class, IOException::class)
-    fun parse(context: Context, inputStream: InputStream): List<Currency> {
+    override fun parse(context: Context, inputStream: InputStream, date: Date): List<Currency> {
         inputStream.use { inputStream ->
             val parser: XmlPullParser = Xml.newPullParser()
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)

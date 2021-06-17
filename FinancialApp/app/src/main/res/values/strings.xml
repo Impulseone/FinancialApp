@@ -19,4 +19,6 @@
     <string name="currency">Валюта:</string>
     <string name="write_value">1</string>
     <string name="calculate">Посчитать</string>
+    <string name="from_currency">Конвертировать с</string>
+    <string name="to_currency">Конвертировать в</string>
 </resources>

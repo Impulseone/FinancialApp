@@ -226,7 +226,7 @@ class CurrencyHistoryFragment : Fragment() {
 
         override fun doInBackground(vararg url: String): ArrayList<Currency> {
             return try {
-                loadXmlFromNetwork(url[0])
+                loadXmlFromNetwork(url[0], CurrencyHistoryParser(),context)
             } catch (e: IOException) {
                 e.printStackTrace()
                 ArrayList()
@@ -234,19 +234,6 @@ class CurrencyHistoryFragment : Fragment() {
                 e.printStackTrace()
                 ArrayList()
             }
-        }
-
-
-        @Throws(XmlPullParserException::class, IOException::class)
-        private fun loadXmlFromNetwork(urlString: String): ArrayList<Currency> {
-            downloadUrl(urlString)?.use { stream ->
-                context?.let {
-                    return CurrencyHistoryParser().parse(
-                        it,
-                        stream
-                    ) as ArrayList<Currency>
-                }
-            } ?: return ArrayList()
         }
 
         override fun onPostExecute(result: ArrayList<Currency>) {
