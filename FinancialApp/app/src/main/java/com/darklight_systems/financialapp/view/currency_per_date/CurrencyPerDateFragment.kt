@@ -44,7 +44,7 @@ class CurrencyPerDateFragment : Fragment() {
 
     private fun setCurrentDate(view: View?) {
         selectedDate = LocalDate.now()
-        val date = parseFromLocalDateToString(selectedDate,"dd/MM/yyyy")
+        val date = parseFromLocalDateToString(selectedDate, "dd/MM/yyyy")
         (view?.findViewById(R.id.selected_date_tv) as TextView).text = date
         DownloadCurrenciesTask().execute(GET_ALL_CURRENCY_URL(date))
     }
@@ -67,18 +67,19 @@ class CurrencyPerDateFragment : Fragment() {
 
     private fun openDatePicker(textView: TextView) {
         val year = selectedDate.year
-        val month = selectedDate.monthValue-1
+        val month = selectedDate.monthValue - 1
         val day = selectedDate.dayOfMonth
-        val dpd = DatePickerDialog(requireActivity(), { _, year, monthOfYear, dayOfMonth ->
-            selectedDate = LocalDate.of(year, monthOfYear+1, dayOfMonth)
-            val dateString = parseFromLocalDateToString(selectedDate,"dd/MM/yyyy")
-            textView.text = dateString
-            DownloadCurrenciesTask().execute(GET_ALL_CURRENCY_URL(dateString))
-        },
-            year, month, day)
+        val dpd = DatePickerDialog(
+            requireActivity(), { _, year, monthOfYear, dayOfMonth ->
+                selectedDate = LocalDate.of(year, monthOfYear + 1, dayOfMonth)
+                val dateString = parseFromLocalDateToString(selectedDate, "dd/MM/yyyy")
+                textView.text = dateString
+                DownloadCurrenciesTask().execute(GET_ALL_CURRENCY_URL(dateString))
+            },
+            year, month, day
+        )
 
         dpd.datePicker.maxDate = Date().time
-
         dpd.show()
     }
 
@@ -89,10 +90,10 @@ class CurrencyPerDateFragment : Fragment() {
                 loadXmlFromNetwork(urls[0])
             } catch (e: IOException) {
                 e.printStackTrace()
-                emptyList()
+                ArrayList()
             } catch (e: XmlPullParserException) {
                 e.printStackTrace()
-                emptyList()
+                ArrayList()
             }
         }
 
@@ -106,9 +107,13 @@ class CurrencyPerDateFragment : Fragment() {
         private fun loadXmlFromNetwork(urlString: String): List<Currency> {
             downloadUrl(urlString)?.use { stream ->
                 context?.let {
-                    return AllCurrenciesParser().parse(it, stream, convertToDateFromLocalDate(selectedDate))
+                    return AllCurrenciesParser().parse(
+                        it,
+                        stream,
+                        convertToDateFromLocalDate(selectedDate)
+                    )
                 }
-            } ?: return emptyList()
+            } ?: return ArrayList()
         }
     }
 }

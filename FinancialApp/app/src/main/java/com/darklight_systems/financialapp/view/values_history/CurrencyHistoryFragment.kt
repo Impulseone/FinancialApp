@@ -182,10 +182,10 @@ class CurrencyHistoryFragment : Fragment() {
                 loadXmlFromNetwork(urls[0])
             } catch (e: IOException) {
                 e.printStackTrace()
-                emptyList()
+                ArrayList()
             } catch (e: XmlPullParserException) {
                 e.printStackTrace()
-                emptyList()
+                ArrayList()
             }
         }
 

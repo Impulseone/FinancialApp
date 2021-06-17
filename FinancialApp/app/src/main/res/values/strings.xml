@@ -11,12 +11,12 @@
     <string name="values_history_fragment">Values history fragment</string>
     <string name="converter_fragment">Converter fragment</string>
     <string name="selected_date">Selected date</string>
-    <string name="select_date">Select date</string>
+    <string name="select_date">Выбрать дату</string>
     <string name="connection_error">connection error</string>
     <string name="xml_error">xml error</string>
-    <string name="from">FROM</string>
-    <string name="to">TO</string>
-    <string name="currency">Currency:</string>
-    <string name="write_value">Write value...</string>
-    <string name="calculate">calculate</string>
+    <string name="from">От</string>
+    <string name="to">До</string>
+    <string name="currency">Валюта:</string>
+    <string name="write_value">1</string>
+    <string name="calculate">Посчитать</string>
 </resources>

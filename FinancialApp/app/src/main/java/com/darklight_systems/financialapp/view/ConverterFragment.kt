@@ -119,7 +119,7 @@ class ConverterFragment : Fragment() {
             try {
                 val count: Int =
                     view.findViewById<EditText>(R.id.currency_value_et).text.toString().toInt()
-                val dateString = parseFromLocalDateToString(selectedDate,"dd.MM.yyyy")
+                val dateString = parseFromLocalDateToString(selectedDate, "dd.MM.yyyy")
                 val firstCurrencyCode = findCurrencyCodeByName(selectedFromCurrency)
                 val secondCurrencyCode = findCurrencyCodeByName(selectedToCurrency)
                 val urls: Pair<String, String> = Pair(
@@ -127,8 +127,7 @@ class ConverterFragment : Fragment() {
                     CURRENCY_HISTORY_URL(dateString, dateString, secondCurrencyCode),
                 )
                 CalculateValuesTask(view, count).execute(urls)
-            }
-            catch (e:Exception){
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
@@ -197,10 +196,15 @@ class ConverterFragment : Fragment() {
 
         override fun doInBackground(vararg urls: Pair<String, String>): Double {
             return try {
-                val firstCurrencyValue: Double = loadXmlFromNetwork(urls[0].first)[0].value
-                val secondCurrencyValue: Double = loadXmlFromNetwork(urls[0].second)[0].value
+
+                val firstCurrency: Currency = loadXmlFromNetwork(urls[0].first)[0]
+                val secondCurrency: Currency = loadXmlFromNetwork(urls[0].second)[0]
+                val firstCurrencyValue: Double =
+                    if (firstCurrency.nominal > 1) (firstCurrency.value / firstCurrency.nominal) else firstCurrency.value
+                val secondCurrencyValue: Double =
+                    if (secondCurrency.nominal > 1) (secondCurrency.value / secondCurrency.nominal) else secondCurrency.value
                 count * (firstCurrencyValue / secondCurrencyValue)
-            } catch (e:Exception){
+            } catch (e: Exception) {
                 e.printStackTrace()
                 0.0
             }
