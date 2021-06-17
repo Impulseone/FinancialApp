@@ -18,4 +18,5 @@
     <string name="to">TO</string>
     <string name="currency">Currency:</string>
     <string name="write_value">Write value...</string>
+    <string name="calculate">calculate</string>
 </resources>

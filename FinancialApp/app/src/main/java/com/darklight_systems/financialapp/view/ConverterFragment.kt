@@ -9,16 +9,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.darklight_systems.financialapp.R
-import com.darklight_systems.financialapp.controller.AllCurrenciesParser
-import com.darklight_systems.financialapp.controller.convertToDateFromLocalDate
-import com.darklight_systems.financialapp.controller.downloadUrl
-import com.darklight_systems.financialapp.controller.parseFromLocalDateToString
+import com.darklight_systems.financialapp.controller.*
 import com.darklight_systems.financialapp.model.CURRENCY_HISTORY_URL
 import com.darklight_systems.financialapp.model.Currency
 import com.darklight_systems.financialapp.model.GET_ALL_CURRENCY_URL
 import kotlinx.android.synthetic.main.fragment_currency_per_date.*
 import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
+import java.lang.Exception
 import java.time.LocalDate
 import java.util.*
 import kotlin.collections.ArrayList
@@ -29,7 +27,7 @@ class ConverterFragment : Fragment() {
     private var selectedToCurrency: String = ""
     private lateinit var spinnerFrom: Spinner
     private lateinit var spinnerTo: Spinner
-    private var allCurrencies:ArrayList<Currency> = ArrayList()
+    private var allCurrencies: ArrayList<Currency> = ArrayList()
     private lateinit var selectedDate: LocalDate
     private lateinit var selectDateButton: Button
 
@@ -41,14 +39,22 @@ class ConverterFragment : Fragment() {
         setCurrentDate(view)
         initSpinners(view)
         setSelectDateButton(view)
+        setCalculateButton(view)
         return view
     }
 
     private fun setCurrentDate(view: View?) {
         selectedDate = LocalDate.now()
-        val date = parseFromLocalDateToString(selectedDate,"dd/MM/yyyy")
+        val date = parseFromLocalDateToString(selectedDate, "dd/MM/yyyy")
         (view?.findViewById(R.id.selected_date_tv) as TextView).text = date
-        DownloadCurrencyTask().execute(GET_ALL_CURRENCY_URL(parseFromLocalDateToString(LocalDate.now(),"dd.MM.yyyy")))
+        DownloadCurrencyTask().execute(
+            GET_ALL_CURRENCY_URL(
+                parseFromLocalDateToString(
+                    LocalDate.now(),
+                    "dd.MM.yyyy"
+                )
+            )
+        )
     }
 
     private fun initSpinners(view: View) {
@@ -91,18 +97,52 @@ class ConverterFragment : Fragment() {
 
     private fun openDatePicker(textView: TextView) {
         val year = selectedDate.year
-        val month = selectedDate.monthValue-1
+        val month = selectedDate.monthValue - 1
         val day = selectedDate.dayOfMonth
-        val dpd = DatePickerDialog(requireActivity(), { _, year, monthOfYear, dayOfMonth ->
-            selectedDate = LocalDate.of(year, monthOfYear+1, dayOfMonth)
-            val dateString = parseFromLocalDateToString(selectedDate,"dd/MM/yyyy")
-            textView.text = dateString
-        },
-            year, month, day)
+        val dpd = DatePickerDialog(
+            requireActivity(), { _, year, monthOfYear, dayOfMonth ->
+                selectedDate = LocalDate.of(year, monthOfYear + 1, dayOfMonth)
+                val dateString = parseFromLocalDateToString(selectedDate, "dd/MM/yyyy")
+                textView.text = dateString
+            },
+            year, month, day
+        )
 
         dpd.datePicker.maxDate = Date().time
 
         dpd.show()
+    }
+
+    private fun setCalculateButton(view: View) {
+        val calculateButton = view.findViewById<Button>(R.id.calculate_button)
+        calculateButton.setOnClickListener {
+            try {
+                val count: Int =
+                    view.findViewById<EditText>(R.id.currency_value_et).text.toString().toInt()
+                val dateString = parseFromLocalDateToString(selectedDate,"dd.MM.yyyy")
+                val firstCurrencyCode = findCurrencyCodeByName(selectedFromCurrency)
+                val secondCurrencyCode = findCurrencyCodeByName(selectedToCurrency)
+                val urls: Pair<String, String> = Pair(
+                    CURRENCY_HISTORY_URL(dateString, dateString, firstCurrencyCode),
+                    CURRENCY_HISTORY_URL(dateString, dateString, secondCurrencyCode),
+                )
+                CalculateValuesTask(view, count).execute(urls)
+            }
+            catch (e:Exception){
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun findCurrencyCodeByName(name: String): String {
+        var currencyCode: String = ""
+        for (element in allCurrencies) {
+            if (element.name == name) {
+                currencyCode = element.id
+                break
+            }
+        }
+        return currencyCode
     }
 
 
@@ -150,5 +190,37 @@ class ConverterFragment : Fragment() {
                 }
             } ?: return emptyList()
         }
+    }
+
+    private inner class CalculateValuesTask(private val view: View, private val count: Int) :
+        AsyncTask<Pair<String, String>, Void, Double>() {
+
+        override fun doInBackground(vararg urls: Pair<String, String>): Double {
+            return try {
+                val firstCurrencyValue: Double = loadXmlFromNetwork(urls[0].first)[0].value
+                val secondCurrencyValue: Double = loadXmlFromNetwork(urls[0].second)[0].value
+                count * (firstCurrencyValue / secondCurrencyValue)
+            } catch (e:Exception){
+                e.printStackTrace()
+                0.0
+            }
+        }
+
+        override fun onPostExecute(result: Double?) {
+            view.findViewById<TextView>(R.id.calculating_result).text = result.toString()
+        }
+
+        @Throws(XmlPullParserException::class, IOException::class)
+        private fun loadXmlFromNetwork(urlString: String): ArrayList<Currency> {
+            downloadUrl(urlString)?.use { stream ->
+                context?.let {
+                    return CurrencyHistoryParser().parse(
+                        it,
+                        stream
+                    ) as ArrayList<Currency>
+                }
+            } ?: return ArrayList()
+        }
+
     }
 }
