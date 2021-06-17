@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import android.widget.AdapterView.OnItemSelectedListener
 import androidx.fragment.app.Fragment
 import com.darklight_systems.financialapp.R
 import com.darklight_systems.financialapp.controller.*
@@ -32,6 +33,8 @@ class CurrencyHistoryFragment : Fragment() {
     private lateinit var selectedFromDate: LocalDate
     private lateinit var selectedToDate: LocalDate
     private lateinit var spinner: Spinner
+    private var selectedCurrencyCode: String = "R01235"
+    private var allCurrencies: ArrayList<Currency> = ArrayList()
 
     private var graphId = View.generateViewId()
 
@@ -54,7 +57,7 @@ class CurrencyHistoryFragment : Fragment() {
         DownloadCurrencyHistoryTask(view).execute(
             CURRENCY_HISTORY_URL(
                 parseFromLocalDateToString(selectedFromDate, "dd/MM/yyyy"),
-                parseFromLocalDateToString(selectedToDate, "dd/MM/yyyy"), "R01235"
+                parseFromLocalDateToString(selectedToDate, "dd/MM/yyyy"), selectedCurrencyCode
             )
         )
         return view
@@ -112,7 +115,7 @@ class CurrencyHistoryFragment : Fragment() {
                 CURRENCY_HISTORY_URL(
                     parseFromLocalDateToString(selectedFromDate, "dd/MM/yyyy"),
                     parseFromLocalDateToString(selectedToDate, "dd/MM/yyyy"),
-                    "R01235"
+                    selectedCurrencyCode
                 )
             )
         }, year, month, day)
@@ -121,11 +124,41 @@ class CurrencyHistoryFragment : Fragment() {
         dpd.show()
     }
 
-    private fun initSpinner(view: View?) {
-        spinner = (view?.findViewById(R.id.spinner) as Spinner)
+    private fun initSpinner(fragmentView: View) {
+        spinner = (fragmentView.findViewById(R.id.spinner) as Spinner)
+        spinner.onItemSelectedListener = object : OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View,
+                position: Int,
+                id: Long
+            ) {
+                selectedCurrencyCode = findCurrencyCodeByName(spinner.selectedItem as String)
+                DownloadCurrencyHistoryTask(fragmentView).execute(
+                    CURRENCY_HISTORY_URL(
+                        parseFromLocalDateToString(selectedFromDate, "dd/MM/yyyy"),
+                        parseFromLocalDateToString(selectedToDate, "dd/MM/yyyy"),
+                        selectedCurrencyCode
+                    )
+                )
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
     }
 
-    private fun createGraph(view: View,dataList: ArrayList<Currency>){
+    fun findCurrencyCodeByName(name: String): String {
+        var currencyCode: String = ""
+        for (element in allCurrencies) {
+            if (element.name == name) {
+                currencyCode = element.id
+                break
+            }
+        }
+        return currencyCode
+    }
+
+    private fun createGraph(view: View, dataList: ArrayList<Currency>) {
         val graph: GraphView = GraphView(view.context)
         graph.id = graphId
 
@@ -158,6 +191,7 @@ class CurrencyHistoryFragment : Fragment() {
 
         override fun onPostExecute(result: List<Currency>?) {
             if (result != null) {
+                allCurrencies = result as ArrayList<Currency>
                 val currencyNames: ArrayList<String> = ArrayList()
                 for (element in result) {
                     currencyNames.add(element.name)
@@ -187,7 +221,7 @@ class CurrencyHistoryFragment : Fragment() {
         }
     }
 
-    private inner class DownloadCurrencyHistoryTask(private val view:View) :
+    private inner class DownloadCurrencyHistoryTask(private val view: View) :
         AsyncTask<String, Void, ArrayList<Currency>>() {
 
         override fun doInBackground(vararg url: String): ArrayList<Currency> {
@@ -218,7 +252,7 @@ class CurrencyHistoryFragment : Fragment() {
         override fun onPostExecute(result: ArrayList<Currency>) {
             val layout = view.findViewById(R.id.history_layout) as LinearLayout
             layout.removeView(view.findViewById(graphId))
-            createGraph(view,result)
+            createGraph(view, result)
         }
 
     }
