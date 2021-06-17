@@ -19,7 +19,6 @@ import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
-import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.*
@@ -34,11 +33,13 @@ class CurrencyHistoryFragment : Fragment() {
     private lateinit var selectedToDate: LocalDate
     private lateinit var spinner: Spinner
 
+    private var graphId = View.generateViewId()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view: View? = inflater.inflate(R.layout.fragment_currency_history, container, false)
+    ): View {
+        val view: View = inflater.inflate(R.layout.fragment_currency_history, container, false)
         initDates(view)
         initButtons(view)
         initSpinner(view)
@@ -50,32 +51,32 @@ class CurrencyHistoryFragment : Fragment() {
                 )
             )
         )
-        DownloadCurrencyHistoryTask().execute(
+        DownloadCurrencyHistoryTask(view).execute(
             CURRENCY_HISTORY_URL(
                 parseFromLocalDateToString(selectedFromDate, "dd/MM/yyyy"),
                 parseFromLocalDateToString(selectedToDate, "dd/MM/yyyy"), "R01235"
             )
         )
-
         return view
     }
 
-    private fun initDates(view: View?) {
+    private fun initDates(view: View) {
         selectedFromDate = LocalDate.now().minusDays(7)
         selectedToDate = LocalDate.now()
-        (view?.findViewById(R.id.from_tv) as TextView).text =
+        (view.findViewById(R.id.from_tv) as TextView).text =
             parseFromLocalDateToString(selectedFromDate, "dd/MM/yyyy")
         (view.findViewById(R.id.to_tv) as TextView).text =
             parseFromLocalDateToString(selectedToDate, "dd/MM/yyyy")
     }
 
-    private fun initButtons(view: View?) {
-        dateFromButton = (view?.findViewById(R.id.from_btn) as Button)
+    private fun initButtons(view: View) {
+        dateFromButton = (view.findViewById(R.id.from_btn) as Button)
         dateFromButton.setOnClickListener {
             openDatePicker(
                 (view.findViewById(R.id.from_tv) as TextView),
                 selectedFromDate,
-                true
+                true,
+                view
             )
         }
         dateToButton = (view.findViewById(R.id.to_btn) as Button)
@@ -83,12 +84,18 @@ class CurrencyHistoryFragment : Fragment() {
             openDatePicker(
                 (view.findViewById(R.id.to_tv) as TextView),
                 selectedToDate,
-                false
+                false,
+                view
             )
         }
     }
 
-    private fun openDatePicker(textView: TextView, date: LocalDate, isFromDate: Boolean) {
+    private fun openDatePicker(
+        textView: TextView,
+        date: LocalDate,
+        isFromDate: Boolean,
+        view: View
+    ) {
         val year = date.year
         val month = date.monthValue - 1
         val day = date.dayOfMonth
@@ -101,7 +108,7 @@ class CurrencyHistoryFragment : Fragment() {
                 "dd/MM/yyyy"
             ) else parseFromLocalDateToString(selectedToDate, "dd/MM/yyyy")
             textView.text = date
-            DownloadCurrencyHistoryTask().execute(
+            DownloadCurrencyHistoryTask(view).execute(
                 CURRENCY_HISTORY_URL(
                     parseFromLocalDateToString(selectedFromDate, "dd/MM/yyyy"),
                     parseFromLocalDateToString(selectedToDate, "dd/MM/yyyy"),
@@ -118,20 +125,22 @@ class CurrencyHistoryFragment : Fragment() {
         spinner = (view?.findViewById(R.id.spinner) as Spinner)
     }
 
-    private fun drawGraph(view: View?, dataList: ArrayList<Currency>) {
-        val graph = view?.findViewById(R.id.graph) as GraphView
+    private fun createGraph(view: View,dataList: ArrayList<Currency>){
+        val graph: GraphView = GraphView(view.context)
+        graph.id = graphId
+
         val dataArray: Array<DataPoint?> = arrayOfNulls(dataList.size)
         for ((index, element) in dataList.withIndex()) dataArray[index] =
             DataPoint(element.date, element.value)
         val series: LineGraphSeries<DataPoint> = LineGraphSeries(dataArray)
         graph.addSeries(series)
-
-        graph.gridLabelRenderer.labelFormatter = DateAsXAxisLabelFormatter(activity,SimpleDateFormat("dd.MM.yy"))
+        graph.gridLabelRenderer.labelFormatter =
+            DateAsXAxisLabelFormatter(activity, SimpleDateFormat("dd.MM.yy"))
         graph.gridLabelRenderer.numHorizontalLabels = 4
-//        graph.viewport.setMinX(convertToDateFromLocalDate(selectedFromDate).time.toDouble())
-//        graph.viewport.setMaxX(convertToDateFromLocalDate(selectedToDate).time.toDouble())
-//        graph.viewport.isXAxisBoundsManual = true
-//        graph.gridLabelRenderer.setHumanRounding(false)
+        graph.gridLabelRenderer.setHumanRounding(false)
+
+        val layout = view.findViewById(R.id.history_layout) as LinearLayout
+        layout.addView(graph)
     }
 
     private inner class DownloadCurrencyTask : AsyncTask<String, Void, List<Currency>>() {
@@ -178,7 +187,7 @@ class CurrencyHistoryFragment : Fragment() {
         }
     }
 
-    private inner class DownloadCurrencyHistoryTask :
+    private inner class DownloadCurrencyHistoryTask(private val view:View) :
         AsyncTask<String, Void, ArrayList<Currency>>() {
 
         override fun doInBackground(vararg url: String): ArrayList<Currency> {
@@ -207,7 +216,9 @@ class CurrencyHistoryFragment : Fragment() {
         }
 
         override fun onPostExecute(result: ArrayList<Currency>) {
-            drawGraph(view, result)
+            val layout = view.findViewById(R.id.history_layout) as LinearLayout
+            layout.removeView(view.findViewById(graphId))
+            createGraph(view,result)
         }
 
     }

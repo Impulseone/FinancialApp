@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/history_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginTop="100dp"
@@ -54,13 +55,13 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 
-    <com.jjoe64.graphview.GraphView
-        android:layout_marginTop="50dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:id="@+id/graph" />
+<!--    <com.jjoe64.graphview.GraphView-->
+<!--        android:layout_marginTop="50dp"-->
+<!--        android:layout_marginStart="10dp"-->
+<!--        android:layout_marginEnd="5dp"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="200dp"-->
+<!--        android:id="@+id/graph" />-->
 
 
 
