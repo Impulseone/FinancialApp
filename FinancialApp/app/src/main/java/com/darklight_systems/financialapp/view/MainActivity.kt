@@ -1,7 +1,6 @@
 package com.darklight_systems.financialapp.view
 
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
@@ -18,18 +17,14 @@ import kotlinx.android.synthetic.main.tool_bar_with_menu_button.*
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var leftMenuTitlesArray: Array<String>
     private lateinit var mDrawerToggle: ActionBarDrawerToggle
-    private lateinit var currencyPerDateFragment: CurrencyPerDateFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        leftMenuTitlesArray = resources.getStringArray(R.array.left_menu_titles)
-        currencyPerDateFragment = CurrencyPerDateFragment()
         createToolbar()
         createLeftNavigationMenu()
-        createValuePerDateFragment()
+        createCurrencyPerDateFragment()
     }
 
     private fun createToolbar() {
@@ -38,7 +33,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createLeftNavigationMenu() {
-        left_drawer.adapter = LeftNavigationArrayAdapter(this, leftMenuTitlesArray)
+        left_drawer.adapter =
+            LeftNavigationArrayAdapter(this, resources.getStringArray(R.array.left_menu_titles))
         left_drawer.onItemClickListener = DrawerItemClickListener()
         mDrawerToggle = ActionBarDrawerToggle(
             this,
@@ -46,19 +42,19 @@ class MainActivity : AppCompatActivity() {
             R.string.drawer_open,
             R.string.drawer_close
         )
-        main_drawer_layout.setDrawerListener(mDrawerToggle)
+        main_drawer_layout.addDrawerListener(mDrawerToggle)
     }
 
-    private fun createValuePerDateFragment() {
+    private fun createCurrencyPerDateFragment() {
         val ft = supportFragmentManager.beginTransaction()
-        ft.replace(R.id.main_relative_layout, currencyPerDateFragment)
+        ft.replace(R.id.main_relative_layout, CurrencyPerDateFragment())
         ft.commit()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return if (mDrawerToggle.onOptionsItemSelected(item)) {
             true
-        } else super.onOptionsItemSelected(item!!)
+        } else super.onOptionsItemSelected(item)
     }
 
     private inner class DrawerItemClickListener : OnItemClickListener {
@@ -80,15 +76,11 @@ class MainActivity : AppCompatActivity() {
         main_drawer_layout.closeDrawer(left_menu_linear_layout)
     }
 
-    private fun changeFragment(fragment: Fragment?, position: Int) {
-        if (fragment != null) {
-            val fragmentManager = supportFragmentManager
-            fragmentManager.beginTransaction()
-                .replace(R.id.main_relative_layout, fragment).commit()
-            left_drawer.setItemChecked(position, true)
-            main_drawer_layout.closeDrawer(left_menu_linear_layout)
-        } else {
-            Log.e(this.javaClass.name, "Error. Fragment is not created")
-        }
+    private fun changeFragment(fragment: Fragment, position: Int) {
+        val fragmentManager = supportFragmentManager
+        fragmentManager.beginTransaction()
+            .replace(R.id.main_relative_layout, fragment).commit()
+        left_drawer.setItemChecked(position, true)
+        main_drawer_layout.closeDrawer(left_menu_linear_layout)
     }
 }
