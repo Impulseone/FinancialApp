@@ -13,7 +13,7 @@ import com.darklight_systems.financialapp.controller.*
 import com.darklight_systems.financialapp.model.CURRENCY_HISTORY_URL
 import com.darklight_systems.financialapp.model.Currency
 import com.darklight_systems.financialapp.model.GET_ALL_CURRENCY_URL
-import kotlinx.android.synthetic.main.fragment_currency_per_date.*
+import kotlinx.android.synthetic.main.fragment_converter.*
 import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
 import java.lang.Exception
@@ -25,28 +25,25 @@ class ConverterFragment : Fragment() {
 
     private var selectedFromCurrency: String = ""
     private var selectedToCurrency: String = ""
-    private lateinit var spinnerFrom: Spinner
-    private lateinit var spinnerTo: Spinner
     private var allCurrencies: ArrayList<Currency> = ArrayList()
     private lateinit var selectedDate: LocalDate
-    private lateinit var selectDateButton: Button
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         val view: View = inflater.inflate(R.layout.fragment_converter, container, false)
-        setCurrentDate(view)
-        initSpinners(view)
+        setCurrentDate()
+        initSpinners()
         setSelectDateButton(view)
         setCalculateButton(view)
         return view
     }
 
-    private fun setCurrentDate(view: View?) {
+    private fun setCurrentDate() {
         selectedDate = LocalDate.now()
         val date = parseFromLocalDateToString(selectedDate, "dd/MM/yyyy")
-        (view?.findViewById(R.id.selected_date_tv) as TextView).text = date
+        selected_date_tv.text = date
         DownloadCurrencyTask().execute(
             GET_ALL_CURRENCY_URL(
                 parseFromLocalDateToString(
@@ -57,9 +54,8 @@ class ConverterFragment : Fragment() {
         )
     }
 
-    private fun initSpinners(view: View) {
-        spinnerFrom = view.findViewById<Spinner>(R.id.from_currency_spinner)
-        spinnerFrom.onItemSelectedListener = object :
+    private fun initSpinners() {
+        from_currency_spinner.onItemSelectedListener = object :
             AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
@@ -67,13 +63,12 @@ class ConverterFragment : Fragment() {
                 position: Int,
                 id: Long
             ) {
-                selectedFromCurrency = (spinnerFrom.selectedItem as String)
+                selectedFromCurrency = (from_currency_spinner.selectedItem as String)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
-        spinnerTo = view.findViewById<Spinner>(R.id.to_currency_spinner)
-        spinnerTo.onItemSelectedListener = object :
+        to_currency_spinner.onItemSelectedListener = object :
             AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
@@ -81,7 +76,7 @@ class ConverterFragment : Fragment() {
                 position: Int,
                 id: Long
             ) {
-                selectedToCurrency = spinnerTo.selectedItem as String
+                selectedToCurrency = to_currency_spinner.selectedItem as String
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -89,8 +84,7 @@ class ConverterFragment : Fragment() {
     }
 
     private fun setSelectDateButton(view: View) {
-        selectDateButton = view.findViewById(R.id.select_date_button) as Button
-        selectDateButton.setOnClickListener {
+        select_date_button.setOnClickListener {
             openDatePicker(selected_date_tv)
         }
     }
@@ -134,7 +128,7 @@ class ConverterFragment : Fragment() {
     }
 
     private fun findCurrencyCodeByName(name: String): String {
-        var currencyCode: String = ""
+        var currencyCode = ""
         for (element in allCurrencies) {
             if (element.name == name) {
                 currencyCode = element.id
@@ -172,8 +166,8 @@ class ConverterFragment : Fragment() {
                         currencyNames
                     )
                 }
-                spinnerFrom.adapter = adapter
-                spinnerTo.adapter = adapter
+                from_currency_spinner.adapter = adapter
+                to_currency_spinner.adapter = adapter
             }
         }
 

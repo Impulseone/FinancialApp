@@ -18,6 +18,7 @@ import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
+import kotlinx.android.synthetic.main.fragment_currency_history.*
 import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -28,11 +29,8 @@ import kotlin.collections.ArrayList
 
 class CurrencyHistoryFragment : Fragment() {
 
-    private lateinit var dateFromButton: Button
-    private lateinit var dateToButton: Button
     private lateinit var selectedFromDate: LocalDate
     private lateinit var selectedToDate: LocalDate
-    private lateinit var spinner: Spinner
     private var selectedCurrencyCode: String = "R01235"
     private var allCurrencies: ArrayList<Currency> = ArrayList()
 
@@ -73,8 +71,7 @@ class CurrencyHistoryFragment : Fragment() {
     }
 
     private fun initButtons(view: View) {
-        dateFromButton = (view.findViewById(R.id.from_btn) as Button)
-        dateFromButton.setOnClickListener {
+        from_btn.setOnClickListener {
             openDatePicker(
                 (view.findViewById(R.id.from_tv) as TextView),
                 selectedFromDate,
@@ -82,8 +79,7 @@ class CurrencyHistoryFragment : Fragment() {
                 view
             )
         }
-        dateToButton = (view.findViewById(R.id.to_btn) as Button)
-        dateToButton.setOnClickListener {
+        to_btn.setOnClickListener {
             openDatePicker(
                 (view.findViewById(R.id.to_tv) as TextView),
                 selectedToDate,
@@ -125,7 +121,6 @@ class CurrencyHistoryFragment : Fragment() {
     }
 
     private fun initSpinner(fragmentView: View) {
-        spinner = (fragmentView.findViewById(R.id.spinner) as Spinner)
         spinner.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
@@ -148,7 +143,7 @@ class CurrencyHistoryFragment : Fragment() {
     }
 
     fun findCurrencyCodeByName(name: String): String {
-        var currencyCode: String = ""
+        var currencyCode = ""
         for (element in allCurrencies) {
             if (element.name == name) {
                 currencyCode = element.id
@@ -237,8 +232,7 @@ class CurrencyHistoryFragment : Fragment() {
         }
 
         override fun onPostExecute(result: ArrayList<Currency>) {
-            val layout = view.findViewById(R.id.history_layout) as LinearLayout
-            layout.removeView(view.findViewById(graphId))
+            history_layout.removeView(view.findViewById(graphId))
             createGraph(view, result)
         }
 

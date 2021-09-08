@@ -13,7 +13,7 @@ class CurrencyAdapter(private var currencyList: ArrayList<Currency>) :
 
     fun updateData(currencyListNew: ArrayList<Currency>) {
         currencyList = currencyListNew
-        this.notifyDataSetChanged()
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CurrencyTileView {
@@ -24,10 +24,11 @@ class CurrencyAdapter(private var currencyList: ArrayList<Currency>) :
 
     override fun onBindViewHolder(holder: CurrencyTileView, position: Int) {
         val currency = currencyList[position]
-        holder.currencyName?.text = currency.name
-        holder.currencyValue?.text = if (currency.nominal > 1)
-            (currency.value / currency.nominal).toString()
-        else currency.value.toString()
+        holder.setView(
+            currency.name,
+            if (currency.nominal > 1) (currency.value / currency.nominal).toString()
+            else currency.value.toString()
+        )
     }
 
     override fun getItemCount() = currencyList.size
@@ -40,6 +41,11 @@ class CurrencyAdapter(private var currencyList: ArrayList<Currency>) :
         init {
             currencyName = itemView.findViewById(R.id.currency_name)
             currencyValue = itemView.findViewById(R.id.currency_value)
+        }
+
+        fun setView(name: String, value: String) {
+            currencyName?.text = name
+            currencyValue?.text = value
         }
     }
 }

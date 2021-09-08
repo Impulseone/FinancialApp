@@ -7,7 +7,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,10 +20,10 @@ import java.io.IOException
 import java.time.LocalDate
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlinx.android.synthetic.main.fragment_currency_per_date.*
 
 class CurrencyPerDateFragment : Fragment() {
 
-    private lateinit var selectDateButton: Button
     private lateinit var currencyAdapter: CurrencyAdapter
     private lateinit var selectedDate: LocalDate
 
@@ -35,20 +34,19 @@ class CurrencyPerDateFragment : Fragment() {
         val view: View? = inflater.inflate(R.layout.fragment_currency_per_date, container, false)
         setSelectDateButton(view)
         setAdapter(view)
-        setCurrentDate(view)
+        setCurrentDate()
         return view
     }
 
-    private fun setCurrentDate(view: View?) {
+    private fun setCurrentDate() {
         selectedDate = LocalDate.now()
         val date = parseFromLocalDateToString(selectedDate, "dd/MM/yyyy")
-        (view?.findViewById(R.id.selected_date_tv) as TextView).text = date
+        selected_date_tv.text = date
         DownloadCurrenciesTask().execute(GET_ALL_CURRENCY_URL(date))
     }
 
     private fun setSelectDateButton(view: View?) {
-        selectDateButton = view?.findViewById(R.id.select_date_button) as Button
-        selectDateButton.setOnClickListener {
+        select_date_button.setOnClickListener {
             openDatePicker(selected_date_tv)
         }
     }

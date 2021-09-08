@@ -8,7 +8,7 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import com.darklight_systems.financialapp.R
 
-class LeftNavigationArrayAdapter(private val context: Context, private val data: Array<String>) :
+class LeftNavigationArrayAdapter(context: Context, private val data: Array<String>) :
     BaseAdapter() {
     private val inflater: LayoutInflater = context
         .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
